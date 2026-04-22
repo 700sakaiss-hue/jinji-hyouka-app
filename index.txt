@@ -640,9 +640,6 @@
 </div><!-- /main -->
 
 <script>
-// ─────────────────────────────────────────────
-// DATA
-// ─────────────────────────────────────────────
 const ITEMS = {
   gyoseki: [
     { name: '目標達成度', desc: '期初に設定した定量・定性目標に対する達成度' },
@@ -674,9 +671,6 @@ const LABELS = ['', '要改善', '改善必要', '標準', '良好', '優秀'];
 let scores = {};
 let currentRole = 'general';
 
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
 function init() {
   const now = new Date();
   document.getElementById('year-display').textContent = now.getFullYear();
@@ -719,9 +713,6 @@ function buildTable(tbodyId, items, cat) {
   });
 }
 
-// ─────────────────────────────────────────────
-// SCORING
-// ─────────────────────────────────────────────
 function setScore(key, val) {
   scores[key] = val;
   const container = document.getElementById(`stars-${key}`);
@@ -744,7 +735,6 @@ function updateSummary() {
   let totalWeighted = 0;
   let totalItems = 0;
   let filled = 0;
-  const allKeys = Object.keys(scores);
   const activeCats = { gyoseki: ITEMS.gyoseki, skill: ITEMS.skill, conduct: ITEMS.conduct };
   if (currentRole === 'manager') activeCats.mgmt = ITEMS.mgmt;
 
@@ -759,7 +749,7 @@ function updateSummary() {
       totalItems++;
     });
     const avg = count > 0 ? (sum / count) : 0;
-    totalWeighted += avg * weights[cat] * 20; // scale to 100
+    totalWeighted += avg * weights[cat] * 20;
     catData.push({ cat, avg: avg.toFixed(1) });
   });
 
@@ -794,9 +784,6 @@ function updateSummary() {
   `).join('');
 }
 
-// ─────────────────────────────────────────────
-// ROLE SWITCHER
-// ─────────────────────────────────────────────
 function setRole(role) {
   currentRole = role;
   document.querySelectorAll('.role-tab').forEach((t, i) => {
@@ -807,9 +794,6 @@ function setRole(role) {
   updateSummary();
 }
 
-// ─────────────────────────────────────────────
-// RESET / SAVE
-// ─────────────────────────────────────────────
 function resetAll() {
   if (!confirm('入力内容をすべてリセットしますか？')) return;
   Object.keys(scores).forEach(k => { scores[k] = 0; });
@@ -835,7 +819,6 @@ function save() {
   alert('評価データを保存しました。');
 }
 
-// ─────────────────────────────────────────────
 init();
 </script>
 </body>
