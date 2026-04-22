@@ -49,7 +49,7 @@
   .member-btn { padding: 6px 16px; border-radius: 2px; font-size: 12px; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; border: 1.5px solid var(--border); background: white; color: var(--ink-light); transition: all 0.15s; }
   .member-btn.active { background: var(--ink); color: var(--gold); border-color: var(--ink); }
 
-  .readonly-notice { background: #fff8e1; border: 1px solid #ffe082; border-radius: 4px; padding: 10px 16px; font-size: 12px; color: #7a6000; margin-bottom: 20px; }
+  .editing-notice { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px; padding: 10px 16px; font-size: 12px; color: #2e7d32; margin-bottom: 20px; }
 
   .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 36px; background: var(--cream); }
   .info-cell { padding: 14px 18px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
@@ -58,7 +58,6 @@
   .info-label { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.15em; margin-bottom: 6px; font-weight: 500; }
   .info-input { width: 100%; border: none; background: none; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; color: var(--ink); outline: none; padding: 0; }
   .info-input::placeholder { color: var(--border); }
-  .info-input:read-only { color: var(--ink-light); }
 
   .section { margin-bottom: 32px; animation: fadeUp 0.4s ease both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -88,7 +87,6 @@
   .comment-label { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.15em; margin-bottom: 8px; font-weight: 500; }
   textarea { width: 100%; min-height: 70px; border: none; background: none; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; color: var(--ink); outline: none; resize: vertical; line-height: 1.7; }
   textarea::placeholder { color: var(--border); }
-  textarea:read-only { color: var(--ink-light); }
 
   .summary-bar { background: var(--ink); border-radius: 4px; padding: 20px 28px; display: flex; align-items: center; gap: 32px; margin-bottom: 32px; flex-wrap: wrap; }
   .summary-item { text-align: center; }
@@ -168,7 +166,7 @@
       <span class="member-bar-label">閲覧中：</span>
       <div id="member-buttons" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
     </div>
-    <div id="readonly-notice" class="readonly-notice" style="display:none">👁 閲覧モードです（編集できません）</div>
+    <div id="editing-notice" class="editing-notice" style="display:none">✏️ <span id="editing-name"></span> の評価を編集中</div>
 
     <div class="info-grid">
       <div class="info-cell"><div class="info-label">部　　署</div><input class="info-input" id="info-dept" placeholder="例：営業本部 第一営業部"></div>
@@ -217,7 +215,7 @@
       <div class="comment-box" style="margin-top:10px;"><div class="comment-label">次期目標・育成方針</div><textarea id="comment-next" placeholder="次期の重点目標、必要なサポート、キャリア開発に向けた方針等を記入してください。" style="min-height:90px;"></textarea></div>
     </div>
 
-    <div class="actions" id="action-buttons">
+    <div class="actions">
       <button class="btn btn-ghost" onclick="resetAll()">リセット</button>
       <button class="btn btn-ghost" onclick="window.print()">🖨 印刷</button>
       <button class="btn btn-primary" onclick="saveData()">💾 保存</button>
@@ -270,7 +268,9 @@ const ITEMS = {
   ],
 };
 
-let scores = {}, currentEvalRole = 'general', currentUser = null, currentUserData = null, isReadOnly = false;
+let scores = {}, currentEvalRole = 'general';
+let currentUser = null, currentUserData = null;
+let viewingUserId = null, viewingUserName = '';
 
 window.doLogin = async () => {
   const email = document.getElementById('login-email').value;
@@ -315,8 +315,11 @@ async function initApp() {
   if (currentUserData.role === 'manager' || currentUserData.role === 'admin') {
     await loadMemberBar();
   }
-  isReadOnly = false;
+
+  viewingUserId = currentUser.uid;
+  viewingUserName = currentUserData.name;
   await loadData(currentUser.uid);
+  updateNotice();
   updateSummary();
 }
 
@@ -331,9 +334,10 @@ async function loadMemberBar() {
   selfBtn.onclick = async () => {
     document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active'));
     selfBtn.classList.add('active');
-    isReadOnly = false;
+    viewingUserId = currentUser.uid;
+    viewingUserName = currentUserData.name;
     await loadData(currentUser.uid);
-    setReadOnly(false);
+    updateNotice();
     updateSummary();
   };
   btnContainer.appendChild(selfBtn);
@@ -351,21 +355,25 @@ async function loadMemberBar() {
     btn.onclick = async () => {
       document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      isReadOnly = true;
+      viewingUserId = d.id;
+      viewingUserName = u.name;
       await loadData(d.id);
-      setReadOnly(true);
+      updateNotice();
       updateSummary();
     };
     btnContainer.appendChild(btn);
   });
 }
 
-function setReadOnly(ro) {
-  document.getElementById('readonly-notice').style.display = ro ? 'block' : 'none';
-  document.getElementById('action-buttons').style.display = ro ? 'none' : 'flex';
-  document.querySelectorAll('.info-input').forEach(el => el.readOnly = ro);
-  document.querySelectorAll('textarea').forEach(el => el.readOnly = ro);
-  document.querySelectorAll('.star-btn').forEach(el => el.disabled = ro);
+// 編集中の通知表示（自分以外を編集中の場合のみ）
+function updateNotice() {
+  const notice = document.getElementById('editing-notice');
+  if (viewingUserId !== currentUser.uid) {
+    notice.style.display = 'block';
+    document.getElementById('editing-name').textContent = viewingUserName;
+  } else {
+    notice.style.display = 'none';
+  }
 }
 
 async function loadData(uid) {
@@ -390,9 +398,9 @@ async function loadData(uid) {
   });
 }
 
+// 保存先はviewingUserId（他のメンバーの場合もそのUIDに保存）
 window.saveData = async () => {
-  if (isReadOnly) return;
-  await setDoc(doc(db, 'evaluations', currentUser.uid), {
+  await setDoc(doc(db, 'evaluations', viewingUserId), {
     scores,
     dept: document.getElementById('info-dept').value,
     name: document.getElementById('info-name').value,
@@ -410,7 +418,8 @@ window.saveData = async () => {
     },
     updatedAt: new Date().toISOString(),
   });
-  alert('保存しました！');
+  const name = viewingUserId === currentUser.uid ? '自分' : viewingUserName;
+  alert(`${name}の評価を保存しました！`);
 };
 
 function resetFields() {
@@ -437,7 +446,6 @@ function buildTable(tbodyId, items, cat) {
 }
 
 window.setScore = (key, val) => {
-  if (isReadOnly) return;
   scores[key] = val;
   document.getElementById(`stars-${key}`).querySelectorAll('.star-btn').forEach(btn => btn.classList.toggle('active', parseInt(btn.dataset.val) <= val));
   document.getElementById(`badge-${key}`).textContent = val;
