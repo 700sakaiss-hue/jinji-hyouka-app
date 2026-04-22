@@ -7,424 +7,109 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #1a1714;
-    --ink-light: #4a4642;
-    --ink-faint: #8a8480;
-    --paper: #f8f5f0;
-    --paper-dark: #ede9e2;
-    --cream: #fdfaf5;
-    --gold: #b8963e;
-    --gold-light: #d4b068;
-    --gold-dim: #e8d5a0;
-    --red: #c0392b;
-    --border: #d4cfc8;
-    --shadow: rgba(26,23,20,0.08);
+    --ink: #1a1714; --ink-light: #4a4642; --ink-faint: #8a8480;
+    --paper: #f8f5f0; --cream: #fdfaf5; --gold: #b8963e;
+    --gold-light: #d4b068; --gold-dim: #e8d5a0; --border: #d4cfc8;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); font-family: 'Noto Sans JP', sans-serif; color: var(--ink); min-height: 100vh; }
 
-  body {
-    background: var(--paper);
-    font-family: 'Noto Sans JP', sans-serif;
-    color: var(--ink);
-    min-height: 100vh;
-  }
+  #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--ink); }
+  .login-box { background: var(--cream); border-radius: 6px; padding: 48px 40px; width: 100%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  .login-title { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+  .login-sub { font-size: 11px; color: var(--ink-faint); text-align: center; letter-spacing: 0.2em; margin-bottom: 32px; }
+  .login-field { margin-bottom: 16px; }
+  .login-field label { display: block; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.15em; margin-bottom: 6px; font-weight: 500; }
+  .login-field input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 4px; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; color: var(--ink); background: white; outline: none; transition: border-color 0.2s; }
+  .login-field input:focus { border-color: var(--gold); }
+  .login-btn { width: 100%; padding: 13px; background: var(--ink); color: var(--gold); border: none; border-radius: 4px; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.1em; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+  .login-btn:hover { background: #2d2a27; }
+  .login-error { color: #c0392b; font-size: 12px; text-align: center; margin-top: 12px; min-height: 18px; }
 
-  /* ── HEADER ── */
-  .header {
-    background: var(--ink);
-    padding: 0;
-    position: relative;
-    overflow: hidden;
-  }
-  .header::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 60px,
-      rgba(184,150,62,0.06) 60px,
-      rgba(184,150,62,0.06) 61px
-    );
-  }
-  .header-inner {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 36px 40px 32px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    position: relative;
-  }
-  .header-title {
-    font-family: 'Noto Serif JP', serif;
-    color: var(--cream);
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-  }
-  .header-title span {
-    display: block;
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--gold-dim);
-    letter-spacing: 0.3em;
-    margin-bottom: 8px;
-    font-family: 'Noto Sans JP', sans-serif;
-  }
-  .header-year {
-    font-family: 'Noto Serif JP', serif;
-    color: var(--gold);
-    font-size: 42px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
+  .header { background: var(--ink); position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(184,150,62,0.06) 60px, rgba(184,150,62,0.06) 61px); }
+  .header-inner { max-width: 900px; margin: 0 auto; padding: 36px 40px 32px; display: flex; align-items: flex-end; justify-content: space-between; position: relative; }
+  .header-title { font-family: 'Noto Serif JP', serif; color: var(--cream); font-size: 28px; font-weight: 700; letter-spacing: 0.1em; }
+  .header-title span { display: block; font-size: 12px; font-weight: 400; color: var(--gold-dim); letter-spacing: 0.3em; margin-bottom: 8px; font-family: 'Noto Sans JP', sans-serif; }
+  .header-year { font-family: 'Noto Serif JP', serif; color: var(--gold); font-size: 42px; font-weight: 700; line-height: 1; }
+  .header-user { position: absolute; top: 12px; right: 40px; display: flex; align-items: center; gap: 12px; }
+  .user-badge { font-size: 11px; color: var(--gold-dim); letter-spacing: 0.1em; }
+  .logout-btn { padding: 5px 14px; background: transparent; border: 1px solid rgba(184,150,62,0.4); border-radius: 2px; color: var(--gold-dim); font-size: 11px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s; }
+  .logout-btn:hover { border-color: var(--gold); color: var(--gold); }
 
-  /* ── ROLE SWITCHER ── */
-  .role-bar {
-    background: var(--gold);
-    padding: 0;
-  }
-  .role-bar-inner {
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    padding: 0 40px;
-  }
-  .role-tab {
-    padding: 12px 28px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: rgba(26,23,20,0.5);
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.2s;
-    background: none;
-    border-top: none; border-left: none; border-right: none;
-    font-family: 'Noto Sans JP', sans-serif;
-  }
-  .role-tab.active {
-    color: var(--ink);
-    border-bottom-color: var(--ink);
-  }
-  .role-tab:hover:not(.active) {
-    color: var(--ink-light);
-  }
+  .role-bar { background: var(--gold); }
+  .role-bar-inner { max-width: 900px; margin: 0 auto; display: flex; padding: 0 40px; }
+  .role-tab { padding: 12px 28px; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; color: rgba(26,23,20,0.5); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Noto Sans JP', sans-serif; }
+  .role-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
 
-  /* ── MAIN ── */
-  .main {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 36px 40px 60px;
-  }
+  .main { max-width: 900px; margin: 0 auto; padding: 36px 40px 60px; }
 
-  /* ── EMPLOYEE INFO ── */
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0;
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 36px;
-    background: var(--cream);
-  }
-  .info-cell {
-    padding: 14px 18px;
-    border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-  .info-cell:nth-child(3),
-  .info-cell:nth-child(6),
-  .info-cell:last-child {
-    border-right: none;
-  }
+  .member-bar { background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .member-bar-label { font-size: 11px; color: var(--ink-faint); letter-spacing: 0.15em; font-weight: 500; white-space: nowrap; }
+  .member-btn { padding: 6px 16px; border-radius: 2px; font-size: 12px; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; border: 1.5px solid var(--border); background: white; color: var(--ink-light); transition: all 0.15s; }
+  .member-btn.active { background: var(--ink); color: var(--gold); border-color: var(--ink); }
+
+  .readonly-notice { background: #fff8e1; border: 1px solid #ffe082; border-radius: 4px; padding: 10px 16px; font-size: 12px; color: #7a6000; margin-bottom: 20px; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 36px; background: var(--cream); }
+  .info-cell { padding: 14px 18px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .info-cell:nth-child(3), .info-cell:nth-child(6), .info-cell:last-child { border-right: none; }
   .info-cell:nth-last-child(-n+3) { border-bottom: none; }
-  .info-label {
-    font-size: 10px;
-    color: var(--ink-faint);
-    letter-spacing: 0.15em;
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
-  .info-input {
-    width: 100%;
-    border: none;
-    background: none;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 14px;
-    color: var(--ink);
-    outline: none;
-    padding: 0;
-  }
+  .info-label { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.15em; margin-bottom: 6px; font-weight: 500; }
+  .info-input { width: 100%; border: none; background: none; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; color: var(--ink); outline: none; padding: 0; }
   .info-input::placeholder { color: var(--border); }
-  .info-select {
-    width: 100%;
-    border: none;
-    background: none;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 14px;
-    color: var(--ink);
-    outline: none;
-    padding: 0;
-    appearance: none;
-    cursor: pointer;
-  }
+  .info-input:read-only { color: var(--ink-light); }
 
-  /* ── SECTION ── */
-  .section {
-    margin-bottom: 32px;
-    animation: fadeUp 0.4s ease both;
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--ink);
-  }
-  .section-icon {
-    width: 28px;
-    height: 28px;
-    background: var(--ink);
-    color: var(--gold);
-    border-radius: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    flex-shrink: 0;
-  }
-  .section-title {
-    font-family: 'Noto Serif JP', serif;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-  }
-  .section-weight {
-    margin-left: auto;
-    font-size: 11px;
-    color: var(--ink-faint);
-    letter-spacing: 0.1em;
-  }
+  .section { margin-bottom: 32px; animation: fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--ink); }
+  .section-icon { width: 28px; height: 28px; background: var(--ink); color: var(--gold); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .section-title { font-family: 'Noto Serif JP', serif; font-size: 17px; font-weight: 700; letter-spacing: 0.06em; }
+  .section-weight { margin-left: auto; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.1em; }
 
-  /* ── EVALUATION TABLE ── */
-  .eval-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--cream);
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    font-size: 13px;
-  }
-  .eval-table thead tr {
-    background: var(--ink);
-  }
-  .eval-table th {
-    padding: 10px 14px;
-    color: var(--gold-dim);
-    font-weight: 500;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-align: left;
-  }
+  .eval-table { width: 100%; border-collapse: collapse; background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; font-size: 13px; }
+  .eval-table thead tr { background: var(--ink); }
+  .eval-table th { padding: 10px 14px; color: var(--gold-dim); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-align: left; }
   .eval-table th.center { text-align: center; }
   .eval-table tr + tr td { border-top: 1px solid var(--border); }
-  .eval-table td {
-    padding: 12px 14px;
-    vertical-align: middle;
-  }
-  .item-name {
-    font-weight: 500;
-    color: var(--ink);
-    font-size: 13.5px;
-  }
-  .item-desc {
-    font-size: 11.5px;
-    color: var(--ink-faint);
-    margin-top: 3px;
-    line-height: 1.5;
-  }
+  .eval-table td { padding: 12px 14px; vertical-align: middle; }
+  .item-name { font-weight: 500; color: var(--ink); font-size: 13.5px; }
+  .item-desc { font-size: 11.5px; color: var(--ink-faint); margin-top: 3px; line-height: 1.5; }
 
-  /* ── STAR RATING ── */
-  .stars {
-    display: flex;
-    gap: 4px;
-    justify-content: center;
-  }
-  .star-btn {
-    width: 28px;
-    height: 28px;
-    background: none;
-    border: 1.5px solid var(--border);
-    border-radius: 2px;
-    cursor: pointer;
-    font-size: 15px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    color: var(--border);
-    position: relative;
-  }
-  .star-btn:hover { border-color: var(--gold); }
-  .star-btn.active {
-    background: var(--gold);
-    border-color: var(--gold);
-    color: var(--ink);
-  }
+  .stars { display: flex; gap: 4px; justify-content: center; }
+  .star-btn { width: 28px; height: 28px; background: none; border: 1.5px solid var(--border); border-radius: 2px; cursor: pointer; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: var(--border); }
+  .star-btn:hover:not(:disabled) { border-color: var(--gold); }
+  .star-btn.active { background: var(--gold); border-color: var(--gold); color: var(--ink); }
   .star-btn[data-val="5"].active { background: var(--ink); border-color: var(--ink); color: var(--gold); }
+  .star-btn:disabled { cursor: default; opacity: 0.6; }
+  .score-badge { display: inline-block; min-width: 32px; text-align: center; font-weight: 700; font-size: 16px; color: var(--gold); font-family: 'Noto Serif JP', serif; }
 
-  .score-badge {
-    display: inline-block;
-    min-width: 32px;
-    text-align: center;
-    font-weight: 700;
-    font-size: 16px;
-    color: var(--gold);
-    font-family: 'Noto Serif JP', serif;
-  }
-
-  /* ── COMMENT ── */
-  .comment-box {
-    background: var(--cream);
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
-    padding: 14px 18px;
-    margin-top: 10px;
-  }
-  .comment-label {
-    font-size: 10px;
-    color: var(--ink-faint);
-    letter-spacing: 0.15em;
-    margin-bottom: 8px;
-    font-weight: 500;
-  }
-  textarea {
-    width: 100%;
-    min-height: 70px;
-    border: none;
-    background: none;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 13px;
-    color: var(--ink);
-    outline: none;
-    resize: vertical;
-    line-height: 1.7;
-  }
+  .comment-box { background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px; padding: 14px 18px; margin-top: 10px; }
+  .comment-label { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.15em; margin-bottom: 8px; font-weight: 500; }
+  textarea { width: 100%; min-height: 70px; border: none; background: none; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; color: var(--ink); outline: none; resize: vertical; line-height: 1.7; }
   textarea::placeholder { color: var(--border); }
+  textarea:read-only { color: var(--ink-light); }
 
-  /* ── SUMMARY ── */
-  .summary-bar {
-    background: var(--ink);
-    border-radius: 4px;
-    padding: 20px 28px;
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    margin-bottom: 32px;
-    flex-wrap: wrap;
-  }
+  .summary-bar { background: var(--ink); border-radius: 4px; padding: 20px 28px; display: flex; align-items: center; gap: 32px; margin-bottom: 32px; flex-wrap: wrap; }
   .summary-item { text-align: center; }
-  .summary-label {
-    font-size: 10px;
-    color: var(--gold-dim);
-    letter-spacing: 0.2em;
-    margin-bottom: 4px;
-  }
-  .summary-value {
-    font-family: 'Noto Serif JP', serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--gold);
-  }
+  .summary-label { font-size: 10px; color: var(--gold-dim); letter-spacing: 0.2em; margin-bottom: 4px; }
+  .summary-value { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 700; color: var(--gold); }
   .summary-value.big { font-size: 36px; }
-  .summary-divider {
-    width: 1px;
-    height: 50px;
-    background: rgba(255,255,255,0.1);
-  }
-  .rank-chip {
-    display: inline-block;
-    padding: 4px 14px;
-    border-radius: 2px;
-    font-weight: 700;
-    font-size: 22px;
-    font-family: 'Noto Serif JP', serif;
-    letter-spacing: 0.05em;
-  }
-  .rank-S { background: var(--gold); color: var(--ink); }
-  .rank-A { background: #2ecc71; color: white; }
-  .rank-B { background: #3498db; color: white; }
-  .rank-C { background: #e67e22; color: white; }
-  .rank-D { background: #c0392b; color: white; }
+  .summary-divider { width: 1px; height: 50px; background: rgba(255,255,255,0.1); }
+  .rank-chip { display: inline-block; padding: 4px 14px; border-radius: 2px; font-weight: 700; font-size: 22px; font-family: 'Noto Serif JP', serif; }
+  .rank-S { background: var(--gold); color: var(--ink); } .rank-A { background: #2ecc71; color: white; }
+  .rank-B { background: #3498db; color: white; } .rank-C { background: #e67e22; color: white; } .rank-D { background: #c0392b; color: white; }
 
-  /* ── ACTIONS ── */
-  .actions {
-    display: flex;
-    gap: 14px;
-    justify-content: flex-end;
-    margin-top: 36px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-  }
-  .btn {
-    padding: 12px 28px;
-    border-radius: 2px;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-  }
-  .btn-ghost {
-    background: transparent;
-    border: 1.5px solid var(--border);
-    color: var(--ink-light);
-  }
+  .actions { display: flex; gap: 14px; justify-content: flex-end; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .btn { padding: 12px 28px; border-radius: 2px; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; border: none; }
+  .btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--ink-light); }
   .btn-ghost:hover { border-color: var(--ink-light); color: var(--ink); }
-  .btn-primary {
-    background: var(--ink);
-    color: var(--gold);
-  }
+  .btn-primary { background: var(--ink); color: var(--gold); }
   .btn-primary:hover { background: #2d2a27; }
-  .btn-print {
-    background: var(--gold);
-    color: var(--ink);
-  }
-  .btn-print:hover { background: var(--gold-light); }
 
-  /* ── HIDDEN SECTION ── */
   .section[data-role] { display: none; }
-
-  /* ── PROGRESS ── */
-  .progress-bar-wrap {
-    height: 3px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 16px;
-    margin-bottom: 36px;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%);
-    border-radius: 2px;
-    transition: width 0.5s ease;
-  }
+  .progress-bar-wrap { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 16px; margin-bottom: 36px; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%); border-radius: 2px; transition: width 0.5s ease; }
 
   @media (max-width: 600px) {
     .main { padding: 24px 20px 48px; }
@@ -433,213 +118,131 @@
     .info-cell:nth-child(2n) { border-right: none; }
     .info-cell:nth-last-child(-n+2) { border-bottom: none; }
     .info-cell:nth-last-child(-n+3) { border-bottom: 1px solid var(--border); }
-    .stars { gap: 2px; }
-    .star-btn { width: 24px; height: 24px; font-size: 13px; }
-    .summary-bar { gap: 18px; }
-    .role-bar-inner { padding: 0 20px; }
+    .stars { gap: 2px; } .star-btn { width: 26px; height: 26px; font-size: 13px; }
+    .summary-bar { gap: 18px; } .role-bar-inner { padding: 0 20px; }
+    .header-user { top: 8px; right: 20px; }
   }
-
-  @media print {
-    .role-bar, .actions { display: none; }
-    .star-btn { border: 1px solid #ccc; }
-    body { background: white; }
-  }
+  @media print { .role-bar, .actions, #login-screen, .member-bar, .header-user { display: none; } body { background: white; } }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-inner">
-    <div>
-      <div class="header-title">
-        <span>PERFORMANCE EVALUATION</span>
-        人事考課表
-      </div>
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-title">人事考課表</div>
+    <div class="login-sub">PERFORMANCE EVALUATION SYSTEM</div>
+    <div class="login-field">
+      <label>メールアドレス</label>
+      <input type="email" id="login-email" placeholder="your@email.com">
     </div>
-    <div class="header-year" id="year-display"></div>
+    <div class="login-field">
+      <label>パスワード</label>
+      <input type="password" id="login-password" placeholder="••••••••">
+    </div>
+    <button class="login-btn" onclick="doLogin()">ログイン</button>
+    <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
-<div class="role-bar">
-  <div class="role-bar-inner">
-    <button class="role-tab active" onclick="setRole('general')">一般社員</button>
-    <button class="role-tab" onclick="setRole('manager')">管理職・リーダー</button>
+<div id="app-screen" style="display:none">
+  <div class="header">
+    <div class="header-user">
+      <span class="user-badge" id="user-badge"></span>
+      <button class="logout-btn" onclick="doLogout()">ログアウト</button>
+    </div>
+    <div class="header-inner">
+      <div><div class="header-title"><span>PERFORMANCE EVALUATION</span>人事考課表</div></div>
+      <div class="header-year" id="year-display"></div>
+    </div>
+  </div>
+
+  <div class="role-bar">
+    <div class="role-bar-inner">
+      <button class="role-tab active" onclick="setEvalRole('general')">一般社員</button>
+      <button class="role-tab" onclick="setEvalRole('manager')">管理職・リーダー</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div id="member-bar" class="member-bar" style="display:none">
+      <span class="member-bar-label">閲覧中：</span>
+      <div id="member-buttons" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+    <div id="readonly-notice" class="readonly-notice" style="display:none">👁 閲覧モードです（編集できません）</div>
+
+    <div class="info-grid">
+      <div class="info-cell"><div class="info-label">部　　署</div><input class="info-input" id="info-dept" placeholder="例：営業本部 第一営業部"></div>
+      <div class="info-cell"><div class="info-label">氏　　名</div><input class="info-input" id="info-name" placeholder="山田 太郎"></div>
+      <div class="info-cell"><div class="info-label">社員番号</div><input class="info-input" id="info-empid" placeholder="A-00001"></div>
+      <div class="info-cell"><div class="info-label">役　　職</div><input class="info-input" id="info-position" placeholder="主任"></div>
+      <div class="info-cell"><div class="info-label">評価期間</div><input class="info-input" id="eval-period" placeholder="2025年4月〜2026年3月"></div>
+      <div class="info-cell"><div class="info-label">評価者氏名</div><input class="info-input" id="info-evaluator" placeholder="鈴木 一郎"></div>
+    </div>
+
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+
+    <div class="summary-bar">
+      <div class="summary-item"><div class="summary-label">総合得点</div><div class="summary-value big" id="total-score">—</div></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item"><div class="summary-label">平均スコア</div><div class="summary-value" id="avg-score">—</div></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item"><div class="summary-label">総合評価</div><div id="rank-display"><span class="rank-chip" id="rank-chip" style="display:none"></span></div></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item" id="cat-scores" style="display:flex;gap:24px;flex-wrap:wrap;"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-header"><div class="section-icon">業</div><div class="section-title">業績・目標達成</div><div class="section-weight">配点比重 30%</div></div>
+      <table class="eval-table"><thead><tr><th style="width:40%">評価項目</th><th class="center" style="width:30%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-gyoseki"></tbody></table>
+      <div class="comment-box"><div class="comment-label">コメント・自己評価記入欄</div><textarea id="comment-gyoseki" placeholder="目標に対する達成状況、特筆すべき成果、課題等をご記入ください。"></textarea></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-icon">能</div><div class="section-title">能力・スキル</div><div class="section-weight">配点比重 25%</div></div>
+      <table class="eval-table"><thead><tr><th style="width:40%">評価項目</th><th class="center" style="width:30%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-skill"></tbody></table>
+      <div class="comment-box"><div class="comment-label">コメント・自己評価記入欄</div><textarea id="comment-skill" placeholder="習得・発揮したスキル、成長した点、今後の課題等をご記入ください。"></textarea></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-icon">行</div><div class="section-title">行動・姿勢・態度</div><div class="section-weight">配点比重 25%</div></div>
+      <table class="eval-table"><thead><tr><th style="width:40%">評価項目</th><th class="center" style="width:30%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-conduct"></tbody></table>
+      <div class="comment-box"><div class="comment-label">コメント・自己評価記入欄</div><textarea id="comment-conduct" placeholder="日頃の行動・姿勢について具体的なエピソードとともにご記入ください。"></textarea></div>
+    </div>
+    <div class="section" data-role="manager" id="section-mgmt">
+      <div class="section-header"><div class="section-icon">管</div><div class="section-title">マネジメント力</div><div class="section-weight">配点比重 20%</div></div>
+      <table class="eval-table"><thead><tr><th style="width:40%">評価項目</th><th class="center" style="width:30%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-mgmt"></tbody></table>
+      <div class="comment-box"><div class="comment-label">コメント・自己評価記入欄</div><textarea id="comment-mgmt" placeholder="チームマネジメントや部下育成の実績・課題等をご記入ください。"></textarea></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-icon">総</div><div class="section-title">総合コメント</div></div>
+      <div class="comment-box"><div class="comment-label">評価者コメント</div><textarea id="comment-overall" placeholder="被評価者の総合的な評価、強み・弱み、今後への期待等を記入してください。" style="min-height:90px;"></textarea></div>
+      <div class="comment-box" style="margin-top:10px;"><div class="comment-label">次期目標・育成方針</div><textarea id="comment-next" placeholder="次期の重点目標、必要なサポート、キャリア開発に向けた方針等を記入してください。" style="min-height:90px;"></textarea></div>
+    </div>
+
+    <div class="actions" id="action-buttons">
+      <button class="btn btn-ghost" onclick="resetAll()">リセット</button>
+      <button class="btn btn-ghost" onclick="window.print()">🖨 印刷</button>
+      <button class="btn btn-primary" onclick="saveData()">💾 保存</button>
+    </div>
   </div>
 </div>
 
-<div class="main">
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-  <!-- 基本情報 -->
-  <div class="info-grid">
-    <div class="info-cell">
-      <div class="info-label">部　　署</div>
-      <input class="info-input" placeholder="例：営業本部 第一営業部">
-    </div>
-    <div class="info-cell">
-      <div class="info-label">氏　　名</div>
-      <input class="info-input" placeholder="山田 太郎">
-    </div>
-    <div class="info-cell">
-      <div class="info-label">社員番号</div>
-      <input class="info-input" placeholder="A-00001">
-    </div>
-    <div class="info-cell">
-      <div class="info-label">役　　職</div>
-      <input class="info-input" placeholder="主任">
-    </div>
-    <div class="info-cell">
-      <div class="info-label">評価期間</div>
-      <input class="info-input" id="eval-period" placeholder="2025年4月〜2026年3月">
-    </div>
-    <div class="info-cell">
-      <div class="info-label">評価者氏名</div>
-      <input class="info-input" placeholder="鈴木 一郎">
-    </div>
-  </div>
+const firebaseConfig = {
+  apiKey: "AIzaSyAT1wA2_s05AoRUQr8eQHWRiX51Z_tKXjE",
+  authDomain: "jinji-kouka-app.firebaseapp.com",
+  projectId: "jinji-kouka-app",
+  storageBucket: "jinji-kouka-app.firebasestorage.app",
+  messagingSenderId: "334662517990",
+  appId: "1:334662517990:web:3d660735ec077745a22727"
+};
 
-  <!-- 進捗バー -->
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
-  </div>
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  <!-- サマリー -->
-  <div class="summary-bar" id="summary-bar">
-    <div class="summary-item">
-      <div class="summary-label">総合得点</div>
-      <div class="summary-value big" id="total-score">—</div>
-    </div>
-    <div class="summary-divider"></div>
-    <div class="summary-item">
-      <div class="summary-label">平均スコア</div>
-      <div class="summary-value" id="avg-score">—</div>
-    </div>
-    <div class="summary-divider"></div>
-    <div class="summary-item">
-      <div class="summary-label">総合評価</div>
-      <div id="rank-display"><span class="rank-chip rank-B" id="rank-chip" style="display:none"></span></div>
-    </div>
-    <div class="summary-divider"></div>
-    <div class="summary-item" id="cat-scores" style="display:flex;gap:24px;flex-wrap:wrap;"></div>
-  </div>
-
-  <!-- 1. 業績・目標達成 -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-icon">業</div>
-      <div class="section-title">業績・目標達成</div>
-      <div class="section-weight">配点比重 30%</div>
-    </div>
-    <table class="eval-table">
-      <thead>
-        <tr>
-          <th style="width:40%">評価項目</th>
-          <th class="center" style="width:30%">評　価</th>
-          <th class="center" style="width:10%">点数</th>
-        </tr>
-      </thead>
-      <tbody id="tbody-gyoseki"></tbody>
-    </table>
-    <div class="comment-box">
-      <div class="comment-label">コメント・自己評価記入欄</div>
-      <textarea placeholder="目標に対する達成状況、特筆すべき成果、課題等をご記入ください。"></textarea>
-    </div>
-  </div>
-
-  <!-- 2. 能力・スキル -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-icon">能</div>
-      <div class="section-title">能力・スキル</div>
-      <div class="section-weight">配点比重 25%</div>
-    </div>
-    <table class="eval-table">
-      <thead>
-        <tr>
-          <th style="width:40%">評価項目</th>
-          <th class="center" style="width:30%">評　価</th>
-          <th class="center" style="width:10%">点数</th>
-        </tr>
-      </thead>
-      <tbody id="tbody-skill"></tbody>
-    </table>
-    <div class="comment-box">
-      <div class="comment-label">コメント・自己評価記入欄</div>
-      <textarea placeholder="習得・発揮したスキル、成長した点、今後の課題等をご記入ください。"></textarea>
-    </div>
-  </div>
-
-  <!-- 3. 行動・姿勢・態度 -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-icon">行</div>
-      <div class="section-title">行動・姿勢・態度</div>
-      <div class="section-weight">配点比重 25%</div>
-    </div>
-    <table class="eval-table">
-      <thead>
-        <tr>
-          <th style="width:40%">評価項目</th>
-          <th class="center" style="width:30%">評　価</th>
-          <th class="center" style="width:10%">点数</th>
-        </tr>
-      </thead>
-      <tbody id="tbody-conduct"></tbody>
-    </table>
-    <div class="comment-box">
-      <div class="comment-label">コメント・自己評価記入欄</div>
-      <textarea placeholder="日頃の行動・姿勢について具体的なエピソードとともにご記入ください。"></textarea>
-    </div>
-  </div>
-
-  <!-- 4. マネジメント力（管理職のみ） -->
-  <div class="section" data-role="manager" id="section-mgmt">
-    <div class="section-header">
-      <div class="section-icon">管</div>
-      <div class="section-title">マネジメント力</div>
-      <div class="section-weight">配点比重 20%</div>
-    </div>
-    <table class="eval-table">
-      <thead>
-        <tr>
-          <th style="width:40%">評価項目</th>
-          <th class="center" style="width:30%">評　価</th>
-          <th class="center" style="width:10%">点数</th>
-        </tr>
-      </thead>
-      <tbody id="tbody-mgmt"></tbody>
-    </table>
-    <div class="comment-box">
-      <div class="comment-label">コメント・自己評価記入欄</div>
-      <textarea placeholder="チームマネジメントや部下育成の実績・課題等をご記入ください。"></textarea>
-    </div>
-  </div>
-
-  <!-- 総合コメント -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-icon">総</div>
-      <div class="section-title">総合コメント</div>
-    </div>
-    <div class="comment-box">
-      <div class="comment-label">評価者コメント</div>
-      <textarea placeholder="被評価者の総合的な評価、強み・弱み、今後への期待等を記入してください。" style="min-height:90px;"></textarea>
-    </div>
-    <div class="comment-box" style="margin-top:10px;">
-      <div class="comment-label">次期目標・育成方針</div>
-      <textarea placeholder="次期の重点目標、必要なサポート、キャリア開発に向けた方針等を記入してください。" style="min-height:90px;"></textarea>
-    </div>
-  </div>
-
-  <!-- アクション -->
-  <div class="actions">
-    <button class="btn btn-ghost" onclick="resetAll()">リセット</button>
-    <button class="btn btn-ghost" onclick="window.print()">🖨 印刷</button>
-    <button class="btn btn-primary" onclick="save()">📋 内容を保存</button>
-  </div>
-
-</div><!-- /main -->
-
-<script>
 const ITEMS = {
   gyoseki: [
     { name: '目標達成度', desc: '期初に設定した定量・定性目標に対する達成度' },
@@ -667,95 +270,201 @@ const ITEMS = {
   ],
 };
 
-const LABELS = ['', '要改善', '改善必要', '標準', '良好', '優秀'];
-let scores = {};
-let currentRole = 'general';
+let scores = {}, currentEvalRole = 'general', currentUser = null, currentUserData = null, isReadOnly = false;
 
-function init() {
+window.doLogin = async () => {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  document.getElementById('login-error').textContent = '';
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch(e) {
+    document.getElementById('login-error').textContent = 'メールアドレスまたはパスワードが正しくありません';
+  }
+};
+
+window.doLogout = () => signOut(auth);
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    currentUserData = snap.exists() ? snap.data() : { role: 'general', name: user.email, dept: '' };
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    initApp();
+  } else {
+    currentUser = null;
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+  }
+});
+
+async function initApp() {
   const now = new Date();
   document.getElementById('year-display').textContent = now.getFullYear();
-  document.getElementById('eval-period').placeholder =
-    `${now.getFullYear()-1}年4月〜${now.getFullYear()}年3月`;
+  document.getElementById('eval-period').placeholder = `${now.getFullYear()-1}年4月〜${now.getFullYear()}年3月`;
+  const roleLabel = { general: '一般社員', manager: '課長', admin: '管理者' };
+  document.getElementById('user-badge').textContent = `${currentUserData.name}（${roleLabel[currentUserData.role] || '一般社員'}）`;
 
   buildTable('tbody-gyoseki', ITEMS.gyoseki, 'gyoseki');
-  buildTable('tbody-skill',   ITEMS.skill,   'skill');
-  buildTable('tbody-conduct', ITEMS.conduct,  'conduct');
-  buildTable('tbody-mgmt',    ITEMS.mgmt,     'mgmt');
+  buildTable('tbody-skill', ITEMS.skill, 'skill');
+  buildTable('tbody-conduct', ITEMS.conduct, 'conduct');
+  buildTable('tbody-mgmt', ITEMS.mgmt, 'mgmt');
 
+  if (currentUserData.role === 'manager' || currentUserData.role === 'admin') {
+    await loadMemberBar();
+  }
+  isReadOnly = false;
+  await loadData(currentUser.uid);
   updateSummary();
+}
+
+async function loadMemberBar() {
+  document.getElementById('member-bar').style.display = 'flex';
+  const btnContainer = document.getElementById('member-buttons');
+  btnContainer.innerHTML = '';
+
+  const selfBtn = document.createElement('button');
+  selfBtn.className = 'member-btn active';
+  selfBtn.textContent = `自分（${currentUserData.name}）`;
+  selfBtn.onclick = async () => {
+    document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active'));
+    selfBtn.classList.add('active');
+    isReadOnly = false;
+    await loadData(currentUser.uid);
+    setReadOnly(false);
+    updateSummary();
+  };
+  btnContainer.appendChild(selfBtn);
+
+  const usersSnap = await getDocs(collection(db, 'users'));
+  usersSnap.forEach(d => {
+    const u = d.data();
+    if (d.id === currentUser.uid) return;
+    const canView = currentUserData.role === 'admin' ||
+      (currentUserData.role === 'manager' && u.dept === currentUserData.dept && u.role === 'general');
+    if (!canView) return;
+    const btn = document.createElement('button');
+    btn.className = 'member-btn';
+    btn.textContent = u.name;
+    btn.onclick = async () => {
+      document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      isReadOnly = true;
+      await loadData(d.id);
+      setReadOnly(true);
+      updateSummary();
+    };
+    btnContainer.appendChild(btn);
+  });
+}
+
+function setReadOnly(ro) {
+  document.getElementById('readonly-notice').style.display = ro ? 'block' : 'none';
+  document.getElementById('action-buttons').style.display = ro ? 'none' : 'flex';
+  document.querySelectorAll('.info-input').forEach(el => el.readOnly = ro);
+  document.querySelectorAll('textarea').forEach(el => el.readOnly = ro);
+  document.querySelectorAll('.star-btn').forEach(el => el.disabled = ro);
+}
+
+async function loadData(uid) {
+  resetFields();
+  const snap = await getDoc(doc(db, 'evaluations', uid));
+  if (!snap.exists()) return;
+  const data = snap.data();
+  scores = data.scores || {};
+  const fields = { 'info-dept': data.dept, 'info-name': data.name, 'info-empid': data.empid, 'info-position': data.position, 'eval-period': data.period, 'info-evaluator': data.evaluator };
+  Object.entries(fields).forEach(([id, val]) => { if (val) document.getElementById(id).value = val; });
+  const comments = data.comments || {};
+  ['gyoseki','skill','conduct','mgmt','overall','next'].forEach(k => {
+    const el = document.getElementById(`comment-${k}`);
+    if (el && comments[k]) el.value = comments[k];
+  });
+  Object.entries(scores).forEach(([key, v]) => {
+    if (v <= 0) return;
+    const container = document.getElementById(`stars-${key}`);
+    if (container) container.querySelectorAll('.star-btn').forEach(btn => btn.classList.toggle('active', parseInt(btn.dataset.val) <= v));
+    const badge = document.getElementById(`badge-${key}`);
+    if (badge) badge.textContent = v;
+  });
+}
+
+window.saveData = async () => {
+  if (isReadOnly) return;
+  await setDoc(doc(db, 'evaluations', currentUser.uid), {
+    scores,
+    dept: document.getElementById('info-dept').value,
+    name: document.getElementById('info-name').value,
+    empid: document.getElementById('info-empid').value,
+    position: document.getElementById('info-position').value,
+    period: document.getElementById('eval-period').value,
+    evaluator: document.getElementById('info-evaluator').value,
+    comments: {
+      gyoseki: document.getElementById('comment-gyoseki').value,
+      skill: document.getElementById('comment-skill').value,
+      conduct: document.getElementById('comment-conduct').value,
+      mgmt: document.getElementById('comment-mgmt').value,
+      overall: document.getElementById('comment-overall').value,
+      next: document.getElementById('comment-next').value,
+    },
+    updatedAt: new Date().toISOString(),
+  });
+  alert('保存しました！');
+};
+
+function resetFields() {
+  scores = {};
+  ['info-dept','info-name','info-empid','info-position','eval-period','info-evaluator'].forEach(id => document.getElementById(id).value = '');
+  ['gyoseki','skill','conduct','mgmt','overall','next'].forEach(k => { const el = document.getElementById(`comment-${k}`); if (el) el.value = ''; });
+  document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.score-badge').forEach(b => b.textContent = '—');
 }
 
 function buildTable(tbodyId, items, cat) {
   const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = '';
   items.forEach((item, idx) => {
     const key = `${cat}_${idx}`;
     scores[key] = 0;
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>
-        <div class="item-name">${item.name}</div>
-        <div class="item-desc">${item.desc}</div>
-      </td>
-      <td style="text-align:center">
-        <div class="stars" id="stars-${key}">
-          ${[1,2,3,4,5].map(v => `
-            <button class="star-btn" data-key="${key}" data-val="${v}" title="${LABELS[v]}" onclick="setScore('${key}',${v})">
-              ${v}
-            </button>
-          `).join('')}
-        </div>
-      </td>
-      <td style="text-align:center">
-        <span class="score-badge" id="badge-${key}">—</span>
-      </td>
-    `;
+      <td><div class="item-name">${item.name}</div><div class="item-desc">${item.desc}</div></td>
+      <td style="text-align:center"><div class="stars" id="stars-${key}">${[1,2,3,4,5].map(v=>`<button class="star-btn" data-key="${key}" data-val="${v}" onclick="setScore('${key}',${v})">${v}</button>`).join('')}</div></td>
+      <td style="text-align:center"><span class="score-badge" id="badge-${key}">—</span></td>`;
     tbody.appendChild(tr);
   });
 }
 
-function setScore(key, val) {
+window.setScore = (key, val) => {
+  if (isReadOnly) return;
   scores[key] = val;
-  const container = document.getElementById(`stars-${key}`);
-  container.querySelectorAll('.star-btn').forEach(btn => {
-    btn.classList.toggle('active', parseInt(btn.dataset.val) <= val);
-  });
+  document.getElementById(`stars-${key}`).querySelectorAll('.star-btn').forEach(btn => btn.classList.toggle('active', parseInt(btn.dataset.val) <= val));
   document.getElementById(`badge-${key}`).textContent = val;
   updateSummary();
-}
+};
 
 function updateSummary() {
-  const cats = currentRole === 'manager'
-    ? ['gyoseki','skill','conduct','mgmt']
-    : ['gyoseki','skill','conduct'];
+  const cats = currentEvalRole === 'manager' ? ['gyoseki','skill','conduct','mgmt'] : ['gyoseki','skill','conduct'];
+  const weights = currentEvalRole === 'manager' ? {gyoseki:0.30,skill:0.25,conduct:0.25,mgmt:0.20} : {gyoseki:0.375,skill:0.3125,conduct:0.3125};
+  const activeCats = {gyoseki:ITEMS.gyoseki,skill:ITEMS.skill,conduct:ITEMS.conduct};
+  if (currentEvalRole === 'manager') activeCats.mgmt = ITEMS.mgmt;
 
-  const weights = currentRole === 'manager'
-    ? { gyoseki:0.30, skill:0.25, conduct:0.25, mgmt:0.20 }
-    : { gyoseki:0.375, skill:0.3125, conduct:0.3125 };
-
-  let totalWeighted = 0;
-  let totalItems = 0;
-  let filled = 0;
-  const activeCats = { gyoseki: ITEMS.gyoseki, skill: ITEMS.skill, conduct: ITEMS.conduct };
-  if (currentRole === 'manager') activeCats.mgmt = ITEMS.mgmt;
-
-  let catData = [];
+  let totalWeighted = 0, totalItems = 0, filled = 0, catData = [];
   cats.forEach(cat => {
     const items = activeCats[cat];
     let sum = 0, count = 0;
     items.forEach((_, idx) => {
-      const key = `${cat}_${idx}`;
-      const v = scores[key] || 0;
+      const v = scores[`${cat}_${idx}`] || 0;
       if (v > 0) { sum += v; count++; filled++; }
       totalItems++;
     });
-    const avg = count > 0 ? (sum / count) : 0;
+    const avg = count > 0 ? sum/count : 0;
     totalWeighted += avg * weights[cat] * 20;
     catData.push({ cat, avg: avg.toFixed(1) });
   });
 
-  const progress = Math.round((filled / totalItems) * 100);
-  document.getElementById('progress-fill').style.width = progress + '%';
-
+  document.getElementById('progress-fill').style.width = Math.round(filled/totalItems*100) + '%';
   if (filled === 0) {
     document.getElementById('total-score').textContent = '—';
     document.getElementById('avg-score').textContent = '—';
@@ -763,63 +472,29 @@ function updateSummary() {
     document.getElementById('cat-scores').innerHTML = '';
     return;
   }
-
   const total = Math.round(totalWeighted);
-  const avg = (totalWeighted / 20).toFixed(2);
   document.getElementById('total-score').textContent = total;
-  document.getElementById('avg-score').textContent = avg;
-
-  const rank = total >= 90 ? 'S' : total >= 75 ? 'A' : total >= 55 ? 'B' : total >= 35 ? 'C' : 'D';
+  document.getElementById('avg-score').textContent = (totalWeighted/20).toFixed(2);
+  const rank = total>=90?'S':total>=75?'A':total>=55?'B':total>=35?'C':'D';
   const chip = document.getElementById('rank-chip');
-  chip.style.display = 'inline-block';
-  chip.textContent = rank;
-  chip.className = `rank-chip rank-${rank}`;
-
-  const catNames = { gyoseki:'業績', skill:'能力', conduct:'行動', mgmt:'管理' };
-  document.getElementById('cat-scores').innerHTML = catData.map(d => `
-    <div class="summary-item">
-      <div class="summary-label">${catNames[d.cat]}</div>
-      <div class="summary-value" style="font-size:20px">${d.avg}</div>
-    </div>
-  `).join('');
+  chip.style.display = 'inline-block'; chip.textContent = rank; chip.className = `rank-chip rank-${rank}`;
+  const catNames = {gyoseki:'業績',skill:'能力',conduct:'行動',mgmt:'管理'};
+  document.getElementById('cat-scores').innerHTML = catData.map(d=>`<div class="summary-item"><div class="summary-label">${catNames[d.cat]}</div><div class="summary-value" style="font-size:20px">${d.avg}</div></div>`).join('');
 }
 
-function setRole(role) {
-  currentRole = role;
-  document.querySelectorAll('.role-tab').forEach((t, i) => {
-    t.classList.toggle('active', (i === 0 && role === 'general') || (i === 1 && role === 'manager'));
-  });
-  const mgmtSection = document.getElementById('section-mgmt');
-  mgmtSection.style.display = role === 'manager' ? 'block' : 'none';
+window.setEvalRole = (role) => {
+  currentEvalRole = role;
+  document.querySelectorAll('.role-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&role==='general')||(i===1&&role==='manager')));
+  document.getElementById('section-mgmt').style.display = role==='manager'?'block':'none';
   updateSummary();
-}
+};
 
-function resetAll() {
+window.resetAll = () => {
   if (!confirm('入力内容をすべてリセットしますか？')) return;
-  Object.keys(scores).forEach(k => { scores[k] = 0; });
-  document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.score-badge').forEach(b => b.textContent = '—');
-  document.querySelectorAll('textarea').forEach(t => t.value = '');
-  document.querySelectorAll('.info-input').forEach(i => i.value = '');
-  updateSummary();
-}
+  resetFields(); updateSummary();
+};
 
-function save() {
-  const data = {
-    scores,
-    role: currentRole,
-    timestamp: new Date().toLocaleString('ja-JP'),
-  };
-  const json = JSON.stringify(data, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `考課表_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  alert('評価データを保存しました。');
-}
-
-init();
+document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') window.doLogin(); });
 </script>
 </body>
 </html>
