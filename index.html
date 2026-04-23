@@ -11,20 +11,20 @@
     --paper: #f8f5f0; --cream: #fdfaf5; --gold: #b8963e;
     --gold-light: #d4b068; --gold-dim: #e8d5a0; --border: #d4cfc8;
 
-    /* 一般社員テーマ（デフォルト） */
-    --theme-bg: #f0f4ff;
-    --theme-accent: #3a5bbf;
-    --theme-accent-light: #e8eeff;
-    --theme-label: #2a4499;
-    --theme-border: #b0c0e8;
+    /* 一般社員テーマ：アプリのダーク系に合わせたスレートグレー */
+    --theme-bg: #f5f5f5;
+    --theme-accent: #3a3a3a;
+    --theme-accent-light: #f0efed;
+    --theme-label: #2a2a2a;
+    --theme-border: #c0bbb5;
   }
 
-  /* 管理職テーマ */
+  /* 管理職テーマ：ゴールドメイン */
   body.role-manager {
-    --theme-bg: #f5f0e8;
-    --theme-accent: #8a6020;
+    --theme-bg: #fdf8ee;
+    --theme-accent: #b8963e;
     --theme-accent-light: #fdf5e0;
-    --theme-label: #6a4a10;
+    --theme-label: #8a6a1a;
     --theme-border: #d4b868;
   }
 
@@ -69,67 +69,30 @@
   .role-switch-btn { flex: 1; padding: 12px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-faint); cursor: pointer; border: none; background: var(--cream); font-family: 'Noto Sans JP', sans-serif; transition: all 0.25s; border-right: 1px solid var(--border); }
   .role-switch-btn:last-child { border-right: none; }
   .role-switch-btn.active { background: var(--theme-accent); color: white; }
+  body.role-manager .role-switch-btn.active { color: var(--ink); }
 
   /* ── MEMBER BAR ── */
   .member-bar { background: var(--theme-accent-light); border: 1.5px solid var(--theme-border); border-radius: 4px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: all 0.3s; }
   .member-bar-label { font-size: 11px; color: var(--theme-label); letter-spacing: 0.15em; font-weight: 700; white-space: nowrap; }
   .member-btn { padding: 6px 16px; border-radius: 2px; font-size: 12px; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; border: 1.5px solid var(--theme-border); background: white; color: var(--ink-light); transition: all 0.15s; }
   .member-btn.active { background: var(--theme-accent); color: white; border-color: var(--theme-accent); }
+  body.role-manager .member-btn.active { color: var(--ink); }
   .editing-notice { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px; padding: 10px 16px; font-size: 12px; color: #2e7d32; margin-bottom: 20px; }
 
   /* ── INFO GRID ── */
   .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0;
-    border: 2px solid var(--theme-border);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 36px;
-    background: var(--theme-accent-light);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-    transition: all 0.3s;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0;
+    border: 2px solid var(--theme-border); border-radius: 6px; overflow: hidden;
+    margin-bottom: 36px; background: var(--theme-accent-light);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07); transition: all 0.3s;
   }
-  .info-cell {
-    padding: 16px 20px;
-    border-right: 1px solid var(--theme-border);
-    border-bottom: 1px solid var(--theme-border);
-    background: white;
-    transition: background 0.15s;
-  }
+  .info-cell { padding: 16px 20px; border-right: 1px solid var(--theme-border); border-bottom: 1px solid var(--theme-border); background: white; transition: background 0.15s; }
   .info-cell:hover { background: var(--theme-accent-light); }
   .info-cell:nth-child(3), .info-cell:nth-child(6), .info-cell:last-child { border-right: none; }
   .info-cell:nth-last-child(-n+3) { border-bottom: none; }
-  .info-label {
-    font-size: 11px;
-    color: var(--theme-label);
-    letter-spacing: 0.15em;
-    margin-bottom: 8px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .info-label::before {
-    content: '';
-    display: inline-block;
-    width: 3px;
-    height: 12px;
-    background: var(--theme-accent);
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-  .info-input {
-    width: 100%;
-    border: none;
-    background: none;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--ink);
-    outline: none;
-    padding: 0;
-  }
+  .info-label { font-size: 11px; color: var(--theme-label); letter-spacing: 0.15em; margin-bottom: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: color 0.3s; }
+  .info-label::before { content: ''; display: inline-block; width: 3px; height: 12px; background: var(--theme-accent); border-radius: 2px; flex-shrink: 0; transition: background 0.3s; }
+  .info-input { width: 100%; border: none; background: none; font-family: 'Noto Sans JP', sans-serif; font-size: 15px; font-weight: 500; color: var(--ink); outline: none; padding: 0; }
   .info-input::placeholder { color: #bbb; font-weight: 400; font-size: 13px; }
 
   /* ── SECTION ── */
@@ -137,6 +100,7 @@
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--theme-accent); transition: border-color 0.3s; }
   .section-icon { width: 28px; height: 28px; background: var(--theme-accent); color: white; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; transition: background 0.3s; }
+  body.role-manager .section-icon { color: var(--ink); }
   .section-title { font-family: 'Noto Serif JP', serif; font-size: 17px; font-weight: 700; letter-spacing: 0.06em; }
   .section-weight { margin-left: auto; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.1em; }
 
@@ -144,6 +108,7 @@
   .eval-table { width: 100%; border-collapse: collapse; background: white; border: 1.5px solid var(--theme-border); border-radius: 6px; overflow: hidden; font-size: 13px; transition: border-color 0.3s; }
   .eval-table thead tr { background: var(--theme-accent); transition: background 0.3s; }
   .eval-table th { padding: 12px 16px; color: white; font-weight: 600; font-size: 12px; letter-spacing: 0.12em; text-align: left; }
+  body.role-manager .eval-table th { color: var(--ink); }
   .eval-table th.center { text-align: center; }
   .eval-table tr + tr td { border-top: 1px solid var(--theme-border); }
   .eval-table tr:hover td { background: var(--theme-accent-light); }
@@ -156,6 +121,7 @@
   .star-btn { width: 32px; height: 32px; background: none; border: 1.5px solid var(--border); border-radius: 3px; cursor: pointer; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: var(--ink-faint); }
   .star-btn:hover { border-color: var(--theme-accent); color: var(--theme-accent); transform: scale(1.1); }
   .star-btn.active { background: var(--theme-accent); border-color: var(--theme-accent); color: white; }
+  body.role-manager .star-btn.active { color: var(--ink); }
   .star-btn[data-val="5"].active { background: var(--ink); border-color: var(--ink); color: var(--gold); }
   .score-badge { display: inline-block; min-width: 32px; text-align: center; font-weight: 700; font-size: 18px; color: var(--theme-accent); font-family: 'Noto Serif JP', serif; transition: color 0.3s; }
 
@@ -186,7 +152,7 @@
 
   .section[data-role] { display: none; }
   .progress-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 16px; margin-bottom: 36px; }
-  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--theme-accent) 0%, var(--theme-accent) 100%); border-radius: 2px; transition: width 0.5s ease, background 0.3s; }
+  .progress-bar-fill { height: 100%; background: var(--theme-accent); border-radius: 2px; transition: width 0.5s ease, background 0.3s; }
 
   /* ── 管理画面 ── */
   #admin-screen { display: none; }
@@ -203,7 +169,7 @@
   .form-msg.error { color: #c0392b; }
 
   .role-badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; }
-  .role-general { background: #e3f2fd; color: #1565c0; }
+  .role-general { background: #e8e8e8; color: #333; }
   .role-manager { background: #fff8e1; color: #f57f17; }
   .role-admin { background: #fce4ec; color: #c62828; }
 
@@ -391,8 +357,24 @@
               <input type="text" id="reg-empid" placeholder="A-00001">
             </div>
             <div class="form-field">
-              <label>部署（候補から選ぶか直接入力）</label>
-              <input type="text" id="reg-dept" placeholder="電気通信(本社)" list="dept-list">
+              <label>部署</label>
+              <select id="reg-dept">
+                <option value="">-- 選択してください --</option>
+                <option value="電気通信(コムシス平林)">電気通信(コムシス平林)</option>
+                <option value="電気通信(コムシス東淀川)">電気通信(コムシス東淀川)</option>
+                <option value="電気通信(鴻池)">電気通信(鴻池)</option>
+                <option value="電気通信(鳥飼)">電気通信(鳥飼)</option>
+                <option value="電気通信(横浜)">電気通信(横浜)</option>
+                <option value="電気通信(泉北)">電気通信(泉北)</option>
+                <option value="電気通信(ラピス神戸)">電気通信(ラピス神戸)</option>
+                <option value="電気通信(東京)">電気通信(東京)</option>
+                <option value="電気通信(滋賀)">電気通信(滋賀)</option>
+                <option value="電気通信(松原施工)">電気通信(松原施工)</option>
+                <option value="電気通信(本社)">電気通信(本社)</option>
+                <option value="電気通信(本社工事部)">電気通信(本社工事部)</option>
+                <option value="電気通信(淀屋橋)">電気通信(淀屋橋)</option>
+                <option value="電気通信(コムシス施工)">電気通信(コムシス施工)</option>
+              </select>
             </div>
             <div class="form-field">
               <label>役職種別（閲覧・編集権限）</label>
@@ -527,7 +509,6 @@ async function initApp() {
   updateNotice();
   updateSummary();
 
-  // 社員番号の自動検索（入力が止まって800ms後に検索）
   document.getElementById('info-empid').addEventListener('input', () => {
     clearTimeout(empidTimer);
     empidTimer = setTimeout(searchByEmpId, 800);
@@ -590,7 +571,6 @@ function updateNotice() {
   }
 }
 
-// 社員番号で自動検索
 async function searchByEmpId() {
   const empid = document.getElementById('info-empid').value.trim();
   if (!empid) return;
@@ -719,7 +699,6 @@ function updateSummary() {
 
 window.setEvalRole = (role) => {
   currentEvalRole = role;
-  // 背景テーマ切り替え
   document.body.classList.toggle('role-manager', role === 'manager');
   document.querySelectorAll('.role-switch-btn').forEach((t,i) => t.classList.toggle('active', (i===0&&role==='general')||(i===1&&role==='manager')));
   document.getElementById('section-mgmt').style.display = role==='manager'?'block':'none';
@@ -735,7 +714,7 @@ window.registerUser = async () => {
   const uid = document.getElementById('reg-uid').value.trim();
   const name = document.getElementById('reg-name').value.trim();
   const empid = document.getElementById('reg-empid').value.trim();
-  const dept = document.getElementById('reg-dept').value.trim();
+  const dept = document.getElementById('reg-dept').value;
   const role = document.getElementById('reg-role').value;
   const msgEl = document.getElementById('reg-msg');
   if (!uid || !name || !dept) {
