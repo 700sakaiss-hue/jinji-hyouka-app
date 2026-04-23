@@ -419,7 +419,8 @@
                 <option value="general">一般社員</option>
                 <option value="kakaricho">係長</option>
                 <option value="shunin">主任</option>
-                <option value="kachodai">課長代理（同部署の一般社員を閲覧・編集可）</option>
+                <option value="kachodai">課長代理</option>
+                <option value="kachodai_mgr">課長代理（閲覧権限あり）</option>
                 <option value="fukubucho">副部長（同部署の一般社員を閲覧・編集可）</option>
                 <option value="jicho">次長（同部署の一般社員を閲覧・編集可）</option>
                 <option value="manager">課長（同部署の一般社員を閲覧・編集可）</option>
@@ -465,6 +466,7 @@
               <option value="kakaricho">係長</option>
               <option value="shunin">主任</option>
               <option value="kachodai">課長代理</option>
+              <option value="kachodai_mgr">課長代理（閲覧権限あり）</option>
               <option value="fukubucho">副部長</option>
               <option value="jicho">次長</option>
               <option value="manager">課長</option>
@@ -482,6 +484,47 @@
         <div id="user-count" style="font-size:11px; color:var(--ink-faint); margin-top:8px;"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- 編集モーダル -->
+<div id="edit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:var(--cream); border-radius:6px; padding:32px; width:100%; max-width:480px; margin:20px; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+    <div style="font-family:'Noto Serif JP',serif; font-size:16px; font-weight:700; margin-bottom:24px; padding-bottom:12px; border-bottom:2px solid var(--ink);">✏️ 社員情報を編集</div>
+    <input type="hidden" id="edit-uid">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">
+      <div class="form-field">
+        <label>氏名</label>
+        <input type="text" id="edit-name">
+      </div>
+      <div class="form-field">
+        <label>社員番号</label>
+        <input type="text" id="edit-empid">
+      </div>
+      <div class="form-field">
+        <label>部署</label>
+        <input type="text" id="edit-dept" list="dept-list">
+      </div>
+      <div class="form-field">
+        <label>役職種別</label>
+        <select id="edit-role">
+          <option value="general">一般社員</option>
+          <option value="kakaricho">係長</option>
+          <option value="shunin">主任</option>
+          <option value="kachodai">課長代理</option>
+          <option value="kachodai_mgr">課長代理（閲覧権限あり）</option>
+          <option value="fukubucho">副部長（同部署の一般社員を閲覧・編集可）</option>
+          <option value="jicho">次長（同部署の一般社員を閲覧・編集可）</option>
+          <option value="manager">課長（同部署の一般社員を閲覧・編集可）</option>
+          <option value="admin">管理者（全社員を閲覧・編集可）</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeEditModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveEdit()">💾 保存</button>
+    </div>
+    <div id="edit-msg" style="font-size:12px; margin-top:10px; min-height:18px;"></div>
   </div>
 </div>
 
@@ -504,11 +547,17 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const ROLE_LABELS = {
-  general:'一般社員', kakaricho:'係長', shunin:'主任',
-  kachodai:'課長代理', fukubucho:'副部長', jicho:'次長',
-  manager:'課長', admin:'管理者',
+  general:      '一般社員',
+  kakaricho:    '係長',
+  shunin:       '主任',
+  kachodai:     '課長代理',
+  kachodai_mgr: '課長代理（閲覧権限あり）',
+  fukubucho:    '副部長',
+  jicho:        '次長',
+  manager:      '課長',
+  admin:        '管理者',
 };
-const MANAGER_ROLES = ['manager','kachodai','fukubucho','jicho','admin'];
+const MANAGER_ROLES = ['manager', 'kachodai_mgr', 'fukubucho', 'jicho', 'admin'];
 
 const ITEMS = {
   gyoseki: [
@@ -894,7 +943,10 @@ async function loadUserList() {
       <td><strong>${u.name}</strong></td>
       <td>${u.dept || '—'}</td>
       <td><span class="role-badge ${roleClass}">${ROLE_LABELS[u.role] || '一般社員'}</span></td>
-      <td>${u.id !== currentUser.uid ? `<button class="delete-btn" onclick="deleteUser('${u.id}','${u.name}')">削除</button>` : '<span style="font-size:11px;color:var(--ink-faint);">自分</span>'}</td>
+      <td style="display:flex; gap:6px;">
+        <button class="delete-btn" style="border-color:#b0c0d8; color:#1a4a8a;" onclick="openEditModal('${u.id}','${u.name}','${u.empid||''}','${u.dept||''}','${u.role||'general'}')">編集</button>
+        ${u.id !== currentUser.uid ? `<button class="delete-btn" onclick="deleteUser('${u.id}','${u.name}')">削除</button>` : '<span style="font-size:11px;color:var(--ink-faint);">自分</span>'}
+      </td>
     `;
     tbody.appendChild(tr);
   });
@@ -908,6 +960,51 @@ window.deleteUser = async (uid, name) => {
   await loadUserList();
   if (MANAGER_ROLES.includes(currentUserData.role)) await loadMemberBar();
 };
+
+window.openEditModal = (uid, name, empid, dept, role) => {
+  document.getElementById('edit-uid').value = uid;
+  document.getElementById('edit-name').value = name;
+  document.getElementById('edit-empid').value = empid;
+  document.getElementById('edit-dept').value = dept;
+  document.getElementById('edit-role').value = role;
+  document.getElementById('edit-msg').textContent = '';
+  document.getElementById('edit-modal').style.display = 'flex';
+};
+
+window.closeEditModal = () => {
+  document.getElementById('edit-modal').style.display = 'none';
+};
+
+window.saveEdit = async () => {
+  const uid = document.getElementById('edit-uid').value;
+  const name = document.getElementById('edit-name').value.trim();
+  const empid = document.getElementById('edit-empid').value.trim();
+  const dept = document.getElementById('edit-dept').value.trim();
+  const role = document.getElementById('edit-role').value;
+  const msgEl = document.getElementById('edit-msg');
+
+  if (!name || !dept) {
+    msgEl.textContent = '氏名・部署は必須です';
+    msgEl.style.color = '#c0392b';
+    return;
+  }
+  try {
+    await setDoc(doc(db, 'users', uid), { name, empid, dept, role });
+    msgEl.textContent = `✅ ${name} さんの情報を更新しました！`;
+    msgEl.style.color = '#2e7d32';
+    await loadUserList();
+    if (MANAGER_ROLES.includes(currentUserData.role)) await loadMemberBar();
+    setTimeout(() => closeEditModal(), 1000);
+  } catch(e) {
+    msgEl.textContent = '更新に失敗しました: ' + e.message;
+    msgEl.style.color = '#c0392b';
+  }
+};
+
+// モーダル外クリックで閉じる
+document.getElementById('edit-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('edit-modal')) closeEditModal();
+});
 
 window.clearFilters = () => {
   document.getElementById('filter-dept').value = '';
