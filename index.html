@@ -149,6 +149,8 @@
   .btn-ghost:hover { border-color: var(--ink-light); color: var(--ink); }
   .btn-primary { background: var(--ink); color: var(--gold); }
   .btn-primary:hover { background: #2d2a27; }
+  .btn-pdf { background: var(--gold); color: var(--ink); }
+  .btn-pdf:hover { background: var(--gold-light); }
 
   .section[data-role] { display: none; }
   .progress-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 16px; margin-bottom: 36px; }
@@ -194,7 +196,48 @@
     .form-grid { grid-template-columns: 1fr; }
     .form-field.full { grid-column: 1; }
   }
-  @media print { .nav-bar, .actions, #login-screen, .member-bar, .header-user { display: none; } body { background: white; } }
+  @media print { .role-bar, .actions, #login-screen, .member-bar, .header-user, .nav-bar { display: none; } body { background: white; } }
+
+  /* ── PDF専用レイアウト ── */
+  #pdf-container { display: none; }
+  @media print {
+    body > *:not(#pdf-container) { display: none !important; }
+    #pdf-container { display: block !important; }
+  }
+  .pdf-wrap { font-family: 'Noto Sans JP', sans-serif; color: #1a1714; font-size: 8.5px; width: 210mm; min-height: 297mm; padding: 10mm 12mm; background: white; }
+  .pdf-header { background: #1a1714; margin: -10mm -12mm 6px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .pdf-header-sub { font-size: 7px; color: #e8d5a0; letter-spacing: 2px; }
+  .pdf-header-title { font-size: 16px; color: #fdfaf5; font-weight: 700; }
+  .pdf-header-year { font-size: 22px; color: #b8963e; font-weight: 700; }
+  .pdf-info { border: 1px solid #d4cfc8; margin-bottom: 6px; font-size: 8px; }
+  .pdf-info-row { display: flex; border-bottom: 1px solid #d4cfc8; }
+  .pdf-info-row:last-child { border-bottom: none; }
+  .pdf-info-cell { padding: 4px 8px; border-right: 1px solid #d4cfc8; flex: 1; }
+  .pdf-info-cell:last-child { border-right: none; }
+  .pdf-info-label { color: #8a8480; margin-bottom: 1px; font-size: 7px; }
+  .pdf-info-val { font-weight: 700; white-space: nowrap; }
+  .pdf-summary { background: #1a1714; padding: 4px 10px; display: flex; gap: 10px; margin-bottom: 6px; border-radius: 2px; align-items: center; }
+  .pdf-summary-item { text-align: center; }
+  .pdf-summary-label { font-size: 6.5px; color: #e8d5a0; }
+  .pdf-summary-val { font-size: 13px; color: #b8963e; font-weight: 700; line-height: 1.2; }
+  .pdf-summary-val.sm { font-size: 10px; }
+  .pdf-summary-div { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+  .pdf-rank { font-size: 10px; color: white; padding: 0 6px; border-radius: 2px; font-weight: 700; display: inline-block; line-height: 1.4; margin-top: 1px; }
+  .pdf-section { margin-bottom: 6px; }
+  .pdf-section-header { display: flex; align-items: center; gap: 4px; border-bottom: 1.5px solid #3a3632; margin-bottom: 4px; padding-bottom: 2px; }
+  .pdf-section-icon { width: 13px; height: 13px; background: #3a3632; color: #b8963e; display: flex; align-items: center; justify-content: center; font-size: 7px; border-radius: 1px; flex-shrink: 0; }
+  .pdf-section-title { font-size: 9.5px; font-weight: 700; }
+  .pdf-section-weight { margin-left: auto; font-size: 7px; color: #8a8480; }
+  .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 3px; font-size: 7.5px; }
+  .pdf-table thead tr { background: #3a3632; }
+  .pdf-table th { padding: 2px 4px; color: #b8963e; font-weight: 400; text-align: left; }
+  .pdf-table th.c { text-align: center; }
+  .pdf-table td { padding: 2px 4px; border-top: 0.5px solid #d4cfc8; }
+  .pdf-table td.c { text-align: center; }
+  .pdf-table td.score { text-align: center; color: #b8963e; font-weight: 700; }
+  .pdf-table td.desc { color: #8a8480; }
+  .pdf-comment { background: #f5f0e8; border: 0.5px solid #c8b887; padding: 2px 6px; font-size: 7px; color: #3a3632; }
+  .pdf-comment-label { color: #8a6a1a; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -215,6 +258,8 @@
   <option value="電気通信(淀屋橋)">
   <option value="電気通信(コムシス施工)">
 </datalist>
+
+<div id="pdf-container"></div>
 
 <div id="login-screen">
   <div class="login-box">
@@ -333,7 +378,8 @@
       <div class="actions">
         <button class="btn btn-ghost" onclick="resetAll()">リセット</button>
         <button class="btn btn-ghost" onclick="window.print()">🖨 印刷</button>
-        <button class="btn btn-primary" onclick="saveData()">💾 保存</button>
+        <button class="btn btn-pdf" onclick="exportPDF()">📄 PDF出力</button>
+        <button class="btn btn-primary" onclick="saveData()">💾 登録</button>
       </div>
     </div>
   </div>
@@ -382,9 +428,9 @@
                 <option value="general">一般社員</option>
                 <option value="kakaricho">係長</option>
                 <option value="shunin">主任</option>
-                <option value="kachodai">課長代理</option>
-                <option value="fukubucho">副部長</option>
-                <option value="jicho">次長</option>
+                <option value="kachodai">課長代理（同部署の一般社員を閲覧・編集可）</option>
+                <option value="fukubucho">副部長（同部署の一般社員を閲覧・編集可）</option>
+                <option value="jicho">次長（同部署の一般社員を閲覧・編集可）</option>
                 <option value="manager">課長（同部署の一般社員を閲覧・編集可）</option>
                 <option value="admin">管理者（全社員を閲覧・編集可）</option>
               </select>
@@ -766,6 +812,142 @@ window.deleteUser = async (uid, name) => {
 };
 
 document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') window.doLogin(); });
+
+// ── PDF出力 ──
+window.exportPDF = () => {
+  const name = document.getElementById('info-name').value || '—';
+  const empid = document.getElementById('info-empid').value || '—';
+  const dept = document.getElementById('info-dept').value || '—';
+  const position = document.getElementById('info-position').value || '—';
+  const period = document.getElementById('eval-period').value || '—';
+  const evaluator = document.getElementById('info-evaluator').value || '—';
+  const year = document.getElementById('year-display').textContent;
+
+  const total = document.getElementById('total-score').textContent;
+  const avg = document.getElementById('avg-score').textContent;
+  const rankChip = document.getElementById('rank-chip');
+  const rankText = rankChip.style.display !== 'none' ? rankChip.textContent : '—';
+  const rankColor = rankChip.style.display !== 'none' ? rankChip.style.background || getComputedStyle(rankChip).backgroundColor : '#888';
+  const catScores = document.getElementById('cat-scores').innerHTML;
+
+  const ITEMS = {
+    gyoseki: ['目標達成度','業務品質','生産性・効率性','課題解決力'],
+    skill:   ['専門知識・技術','企画・提案力','判断力・決断力','自己啓発'],
+    conduct: ['規律・責任感','チームワーク','コミュニケーション','顧客・相手志向'],
+    mgmt:    ['チーム目標管理','部下育成・指導','リーダーシップ','組織貢献・戦略眼'],
+  };
+  const DESCS = {
+    gyoseki: ['定量・定性目標に対する達成度','正確性・完成度・クオリティ','スピードと工数対効果','問題発見・自律的解決力'],
+    skill:   ['知識・スキルの習得・活用','アイデア・改善提案能力','状況把握・適切な判断力','スキルアップへの取り組み'],
+    conduct: ['ルール遵守・誠実さ','協調性・助け合い','報連相・情報共有','ニーズ把握・行動力'],
+    mgmt:    ['チームの目標設定と進捗管理','メンバーの成長を促す指導力','チームを方向付ける牽引力','部門全体を俯瞰した行動と提言'],
+  };
+
+  const cats = currentEvalRole === 'manager'
+    ? ['gyoseki','skill','conduct','mgmt']
+    : ['gyoseki','skill','conduct'];
+  const secTitles = { gyoseki:'業績・目標達成', skill:'能力・スキル', conduct:'行動・姿勢・態度', mgmt:'マネジメント力' };
+  const secIcons  = { gyoseki:'業', skill:'能', conduct:'行', mgmt:'管' };
+  const secWeights= { gyoseki:'30%', skill:'25%', conduct:'25%', mgmt:'20%' };
+
+  function dots(v) {
+    if (!v || v === 0) return '○○○○○';
+    return '●'.repeat(v) + '○'.repeat(5 - v);
+  }
+
+  function buildSection(cat) {
+    const rows = ITEMS[cat].map((item, idx) => {
+      const key = `${cat}_${idx}`;
+      const v = scores[key] || 0;
+      return `<tr>
+        <td style="padding:2px 4px;">${item}</td>
+        <td class="desc" style="padding:2px 4px;">${DESCS[cat][idx]}</td>
+        <td class="c" style="padding:2px 4px; letter-spacing:-1px;">${dots(v)}</td>
+        <td class="score" style="padding:2px 4px;">${v || '—'}</td>
+      </tr>`;
+    }).join('');
+    const comment = document.getElementById(`comment-${cat}`)?.value || '';
+    return `
+    <div class="pdf-section">
+      <div class="pdf-section-header">
+        <div class="pdf-section-icon">${secIcons[cat]}</div>
+        <div class="pdf-section-title">${secTitles[cat]}</div>
+        <div class="pdf-section-weight">配点比重 ${secWeights[cat]}</div>
+      </div>
+      <table class="pdf-table">
+        <thead><tr>
+          <th style="width:30%">評価項目</th>
+          <th style="width:40%">説明</th>
+          <th class="c" style="width:18%">評価</th>
+          <th class="c" style="width:12%">点</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${comment ? `<div class="pdf-comment"><span class="pdf-comment-label">コメント：</span>${comment}</div>` : ''}
+    </div>`;
+  }
+
+  const commentOverall = document.getElementById('comment-overall')?.value || '';
+  const commentNext    = document.getElementById('comment-next')?.value || '';
+
+  const html = `
+  <div class="pdf-wrap">
+    <div class="pdf-header">
+      <div>
+        <div class="pdf-header-sub">PERFORMANCE EVALUATION</div>
+        <div class="pdf-header-title">人事考課表</div>
+      </div>
+      <div class="pdf-header-year">${year}</div>
+    </div>
+
+    <div class="pdf-info">
+      <div class="pdf-info-row">
+        <div class="pdf-info-cell" style="flex:0.9"><div class="pdf-info-label">社員番号</div><div class="pdf-info-val">${empid}</div></div>
+        <div class="pdf-info-cell" style="flex:1.2"><div class="pdf-info-label">氏名</div><div class="pdf-info-val">${name}</div></div>
+        <div class="pdf-info-cell" style="flex:0.9"><div class="pdf-info-label">役職</div><div class="pdf-info-val">${position}</div></div>
+        <div class="pdf-info-cell" style="flex:1.2"><div class="pdf-info-label">評価者</div><div class="pdf-info-val">${evaluator}</div></div>
+      </div>
+      <div class="pdf-info-row">
+        <div class="pdf-info-cell" style="flex:1.8"><div class="pdf-info-label">部署</div><div class="pdf-info-val">${dept}</div></div>
+        <div class="pdf-info-cell" style="flex:1.4"><div class="pdf-info-label">評価期間</div><div class="pdf-info-val">${period}</div></div>
+      </div>
+    </div>
+
+    <div class="pdf-summary">
+      <div class="pdf-summary-item">
+        <div class="pdf-summary-label">総合得点</div>
+        <div class="pdf-summary-val">${total}</div>
+      </div>
+      <div class="pdf-summary-div"></div>
+      <div class="pdf-summary-item">
+        <div class="pdf-summary-label">平均スコア</div>
+        <div class="pdf-summary-val sm">${avg}</div>
+      </div>
+      <div class="pdf-summary-div"></div>
+      <div class="pdf-summary-item">
+        <div class="pdf-summary-label">総合評価</div>
+        <div class="pdf-rank" style="background:${rankColor}">${rankText}</div>
+      </div>
+      <div class="pdf-summary-div"></div>
+      <div style="display:flex;gap:8px;">${catScores}</div>
+    </div>
+
+    ${cats.map(buildSection).join('')}
+
+    <div class="pdf-section">
+      <div class="pdf-section-header">
+        <div class="pdf-section-icon">総</div>
+        <div class="pdf-section-title">総合コメント</div>
+      </div>
+      ${commentOverall ? `<div class="pdf-comment" style="margin-bottom:3px;"><span class="pdf-comment-label">評価者コメント：</span>${commentOverall}</div>` : ''}
+      ${commentNext    ? `<div class="pdf-comment"><span class="pdf-comment-label">次期目標・育成方針：</span>${commentNext}</div>` : ''}
+    </div>
+  </div>`;
+
+  document.getElementById('pdf-container').innerHTML = html;
+  window.print();
+  setTimeout(() => { document.getElementById('pdf-container').innerHTML = ''; }, 1000);
+};
 </script>
 </body>
 </html>
