@@ -909,6 +909,10 @@ window.setEvalRole = (role) => {
   document.body.classList.toggle('role-manager', role === 'manager');
   document.querySelectorAll('.role-switch-btn').forEach((t,i) => t.classList.toggle('active', (i===0&&role==='general')||(i===1&&role==='manager')));
   document.getElementById('section-mgmt').style.display = role==='manager'?'block':'none';
+  // 閲覧中タブも連動
+  if (document.getElementById('member-tab-general')) {
+    switchMemberTab(role === 'manager' ? 'manager' : 'general');
+  }
   updateSummary();
 };
 
