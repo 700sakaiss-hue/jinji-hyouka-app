@@ -1324,6 +1324,9 @@ window.exportBulkPDF = async (type) => {
   window.print();
   setTimeout(() => { document.getElementById('pdf-container').innerHTML = ''; }, 1500);
 };
+
+// ── 個別PDF出力 ──
+window.exportPDF = () => {
   const name = document.getElementById('info-name').value || '—';
   const empid = document.getElementById('info-empid').value || '—';
   const dept = document.getElementById('info-dept').value || '—';
