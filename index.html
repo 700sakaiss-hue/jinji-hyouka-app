@@ -308,12 +308,18 @@
       </div>
 
       <div id="member-bar" class="member-bar" style="display:none">
-        <div style="display:flex; align-items:center; gap:10px; width:100%; flex-wrap:wrap;">
-          <span class="member-bar-label">閲覧中：</span>
-          <select id="member-dept-filter" style="padding:5px 10px; border:1.5px solid var(--theme-border); border-radius:3px; font-size:12px; font-family:'Noto Sans JP',sans-serif; background:white; color:var(--ink); outline:none; cursor:pointer;" onchange="filterMemberButtons()">
-            <option value="">すべての部署</option>
-          </select>
-          <div id="member-buttons" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;"></div>
+        <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span class="member-bar-label">閲覧中：</span>
+            <div style="display:flex; border:1.5px solid var(--theme-border); border-radius:3px; overflow:hidden;">
+              <button id="member-tab-general" style="padding:5px 14px; font-size:12px; font-weight:700; font-family:'Noto Sans JP',sans-serif; border:none; cursor:pointer; transition:all 0.2s; background:var(--theme-accent); color:white;" onclick="switchMemberTab('general')">一般社員</button>
+              <button id="member-tab-manager" style="padding:5px 14px; font-size:12px; font-weight:700; font-family:'Noto Sans JP',sans-serif; border:none; cursor:pointer; transition:all 0.2s; background:white; color:var(--ink-faint); border-left:1.5px solid var(--theme-border);" onclick="switchMemberTab('manager')">管理職</button>
+            </div>
+            <select id="member-dept-filter" style="padding:5px 10px; border:1.5px solid var(--theme-border); border-radius:3px; font-size:12px; font-family:'Noto Sans JP',sans-serif; background:white; color:var(--ink); outline:none; cursor:pointer;" onchange="filterMemberButtons()">
+              <option value="">すべての部署</option>
+            </select>
+          </div>
+          <div id="member-buttons" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
         </div>
       </div>
       <div id="editing-notice" class="editing-notice" style="display:none">✏️ <span id="editing-name"></span> の評価を編集中</div>
@@ -655,6 +661,7 @@ window.showPage = (page) => {
 
 // メンバーデータをキャッシュ
 let memberCache = [];
+let memberTabMode = 'general'; // 'general' or 'manager'
 
 async function loadMemberBar() {
   document.getElementById('member-bar').style.display = 'flex';
@@ -684,14 +691,35 @@ async function loadMemberBar() {
   renderMemberButtons();
 }
 
+window.switchMemberTab = (mode) => {
+  memberTabMode = mode;
+  const genBtn = document.getElementById('member-tab-general');
+  const mgrBtn = document.getElementById('member-tab-manager');
+  if (mode === 'general') {
+    genBtn.style.background = 'var(--theme-accent)';
+    genBtn.style.color = 'white';
+    mgrBtn.style.background = 'white';
+    mgrBtn.style.color = 'var(--ink-faint)';
+  } else {
+    mgrBtn.style.background = 'var(--theme-accent)';
+    mgrBtn.style.color = 'white';
+    genBtn.style.background = 'white';
+    genBtn.style.color = 'var(--ink-faint)';
+  }
+  renderMemberButtons();
+};
+
 window.filterMemberButtons = () => renderMemberButtons();
+
+// 一般社員扱いのロール
+const GENERAL_ROLES = ['general', 'shunin'];
 
 function renderMemberButtons() {
   const btnContainer = document.getElementById('member-buttons');
   btnContainer.innerHTML = '';
   const filterDept = document.getElementById('member-dept-filter').value;
 
-  // 自分ボタン
+  // 自分ボタン（常に表示）
   const selfBtn = document.createElement('button');
   selfBtn.className = 'member-btn active';
   selfBtn.textContent = `自分（${currentUserData.name}）`;
@@ -706,10 +734,14 @@ function renderMemberButtons() {
   };
   btnContainer.appendChild(selfBtn);
 
-  // 絞り込み後のメンバー
-  const filtered = filterDept
-    ? memberCache.filter(u => u.dept === filterDept)
-    : memberCache;
+  // タブと部署で絞り込み
+  let filtered = memberCache.filter(u => {
+    const isGeneral = GENERAL_ROLES.includes(u.role) || !u.role;
+    if (memberTabMode === 'general' && !isGeneral) return false;
+    if (memberTabMode === 'manager' && isGeneral) return false;
+    if (filterDept && u.dept !== filterDept) return false;
+    return true;
+  });
 
   // 社員番号順ソート
   filtered.sort((a, b) => {
