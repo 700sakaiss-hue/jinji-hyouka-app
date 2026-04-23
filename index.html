@@ -257,6 +257,8 @@
   <option value="電気通信(本社工事部)">
   <option value="電気通信(淀屋橋)">
   <option value="電気通信(コムシス施工)">
+  <option value="電気通信(河内)">
+  <option value="電気通信(大阪技術)">
 </datalist>
 
 <div id="pdf-container"></div>
@@ -402,24 +404,8 @@
               <input type="text" id="reg-empid" placeholder="A-00001">
             </div>
             <div class="form-field">
-              <label>部署</label>
-              <select id="reg-dept">
-                <option value="">-- 選択してください --</option>
-                <option value="電気通信(コムシス平林)">電気通信(コムシス平林)</option>
-                <option value="電気通信(コムシス東淀川)">電気通信(コムシス東淀川)</option>
-                <option value="電気通信(鴻池)">電気通信(鴻池)</option>
-                <option value="電気通信(鳥飼)">電気通信(鳥飼)</option>
-                <option value="電気通信(横浜)">電気通信(横浜)</option>
-                <option value="電気通信(泉北)">電気通信(泉北)</option>
-                <option value="電気通信(ラピス神戸)">電気通信(ラピス神戸)</option>
-                <option value="電気通信(東京)">電気通信(東京)</option>
-                <option value="電気通信(滋賀)">電気通信(滋賀)</option>
-                <option value="電気通信(松原施工)">電気通信(松原施工)</option>
-                <option value="電気通信(本社)">電気通信(本社)</option>
-                <option value="電気通信(本社工事部)">電気通信(本社工事部)</option>
-                <option value="電気通信(淀屋橋)">電気通信(淀屋橋)</option>
-                <option value="電気通信(コムシス施工)">電気通信(コムシス施工)</option>
-              </select>
+              <label>部署（候補から選ぶか直接入力）</label>
+              <input type="text" id="reg-dept" placeholder="電気通信(本社)" list="dept-list">
             </div>
             <div class="form-field">
               <label>役職種別（閲覧・編集権限）</label>
@@ -460,6 +446,8 @@
               <option value="電気通信(本社工事部)">電気通信(本社工事部)</option>
               <option value="電気通信(淀屋橋)">電気通信(淀屋橋)</option>
               <option value="電気通信(コムシス施工)">電気通信(コムシス施工)</option>
+              <option value="電気通信(河内)">電気通信(河内)</option>
+              <option value="電気通信(大阪技術)">電気通信(大阪技術)</option>
             </select>
           </div>
           <div class="form-field" style="margin:0; flex:1; min-width:160px;">
@@ -799,7 +787,7 @@ window.registerUser = async () => {
   const uid = document.getElementById('reg-uid').value.trim();
   const name = document.getElementById('reg-name').value.trim();
   const empid = document.getElementById('reg-empid').value.trim();
-  const dept = document.getElementById('reg-dept').value;
+  const dept = document.getElementById('reg-dept').value.trim();
   const role = document.getElementById('reg-role').value;
   const msgEl = document.getElementById('reg-msg');
   if (!uid || !name || !dept) {
@@ -815,8 +803,7 @@ window.registerUser = async () => {
     document.getElementById('reg-name').value = '';
     document.getElementById('reg-empid').value = '';
     document.getElementById('reg-dept').value = '';
-    document.getElementById('reg-role').value = 'general';
-    await loadUserList();
+    document.getElementById('reg-role').value = 'general';    await loadUserList();
     if (MANAGER_ROLES.includes(currentUserData.role)) await loadMemberBar();
   } catch(e) {
     msgEl.textContent = '登録に失敗しました: ' + e.message;
