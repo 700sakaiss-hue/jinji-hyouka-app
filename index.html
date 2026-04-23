@@ -11,12 +11,12 @@
     --paper: #f8f5f0; --cream: #fdfaf5; --gold: #b8963e;
     --gold-light: #d4b068; --gold-dim: #e8d5a0; --border: #d4cfc8;
 
-    /* 一般社員テーマ：アプリのダーク系に合わせたスレートグレー */
-    --theme-bg: #f5f5f5;
-    --theme-accent: #3a3a3a;
-    --theme-accent-light: #f0efed;
-    --theme-label: #2a2a2a;
-    --theme-border: #c0bbb5;
+    /* 一般社員テーマ：チャコールグレー×ゴールド */
+    --theme-bg: #f8f5f0;
+    --theme-accent: #3a3632;
+    --theme-accent-light: #f5f0e8;
+    --theme-label: #3a3632;
+    --theme-border: #c8b887;
   }
 
   /* 管理職テーマ：ゴールドメイン */
@@ -68,14 +68,14 @@
   .role-switcher { display: flex; gap: 0; margin-bottom: 28px; border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; }
   .role-switch-btn { flex: 1; padding: 12px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-faint); cursor: pointer; border: none; background: var(--cream); font-family: 'Noto Sans JP', sans-serif; transition: all 0.25s; border-right: 1px solid var(--border); }
   .role-switch-btn:last-child { border-right: none; }
-  .role-switch-btn.active { background: var(--theme-accent); color: white; }
+  .role-switch-btn.active { background: var(--theme-accent); color: var(--gold); }
   body.role-manager .role-switch-btn.active { color: var(--ink); }
 
   /* ── MEMBER BAR ── */
   .member-bar { background: var(--theme-accent-light); border: 1.5px solid var(--theme-border); border-radius: 4px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: all 0.3s; }
   .member-bar-label { font-size: 11px; color: var(--theme-label); letter-spacing: 0.15em; font-weight: 700; white-space: nowrap; }
   .member-btn { padding: 6px 16px; border-radius: 2px; font-size: 12px; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; border: 1.5px solid var(--theme-border); background: white; color: var(--ink-light); transition: all 0.15s; }
-  .member-btn.active { background: var(--theme-accent); color: white; border-color: var(--theme-accent); }
+  .member-btn.active { background: var(--theme-accent); color: var(--gold); border-color: var(--theme-accent); }
   body.role-manager .member-btn.active { color: var(--ink); }
   .editing-notice { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px; padding: 10px 16px; font-size: 12px; color: #2e7d32; margin-bottom: 20px; }
 
@@ -99,7 +99,7 @@
   .section { margin-bottom: 32px; animation: fadeUp 0.4s ease both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--theme-accent); transition: border-color 0.3s; }
-  .section-icon { width: 28px; height: 28px; background: var(--theme-accent); color: white; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; transition: background 0.3s; }
+  .section-icon { width: 28px; height: 28px; background: var(--theme-accent); color: var(--gold); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; transition: background 0.3s; }
   body.role-manager .section-icon { color: var(--ink); }
   .section-title { font-family: 'Noto Serif JP', serif; font-size: 17px; font-weight: 700; letter-spacing: 0.06em; }
   .section-weight { margin-left: auto; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.1em; }
@@ -107,7 +107,7 @@
   /* ── EVAL TABLE ── */
   .eval-table { width: 100%; border-collapse: collapse; background: white; border: 1.5px solid var(--theme-border); border-radius: 6px; overflow: hidden; font-size: 13px; transition: border-color 0.3s; }
   .eval-table thead tr { background: var(--theme-accent); transition: background 0.3s; }
-  .eval-table th { padding: 12px 16px; color: white; font-weight: 600; font-size: 12px; letter-spacing: 0.12em; text-align: left; }
+  .eval-table th { padding: 12px 16px; color: var(--gold); font-weight: 600; font-size: 12px; letter-spacing: 0.12em; text-align: left; }
   body.role-manager .eval-table th { color: var(--ink); }
   .eval-table th.center { text-align: center; }
   .eval-table tr + tr td { border-top: 1px solid var(--theme-border); }
@@ -120,7 +120,7 @@
   .stars { display: flex; gap: 4px; justify-content: center; }
   .star-btn { width: 32px; height: 32px; background: none; border: 1.5px solid var(--border); border-radius: 3px; cursor: pointer; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: var(--ink-faint); }
   .star-btn:hover { border-color: var(--theme-accent); color: var(--theme-accent); transform: scale(1.1); }
-  .star-btn.active { background: var(--theme-accent); border-color: var(--theme-accent); color: white; }
+  .star-btn.active { background: var(--theme-accent); border-color: var(--theme-accent); color: var(--gold); }
   body.role-manager .star-btn.active { color: var(--ink); }
   .star-btn[data-val="5"].active { background: var(--ink); border-color: var(--ink); color: var(--gold); }
   .score-badge { display: inline-block; min-width: 32px; text-align: center; font-weight: 700; font-size: 18px; color: var(--theme-accent); font-family: 'Noto Serif JP', serif; transition: color 0.3s; }
