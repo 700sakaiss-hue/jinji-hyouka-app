@@ -400,7 +400,13 @@
   <div id="admin-screen">
     <div class="main">
       <div class="admin-section">
-        <div class="admin-section-title">👤 社員を登録</div>
+        <div class="admin-section-title">📄 PDF一括出力</div>
+        <div style="background:var(--cream); border:1.5px solid var(--border); border-radius:4px; padding:20px 24px; display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
+          <div style="font-size:12px; color:var(--ink-light); flex:1; min-width:200px;">登録済み社員の評価データをまとめてPDF出力します。<br>1ページ目に一覧表、以降に各社員の評価シートが続きます。</div>
+          <button class="btn btn-primary" onclick="exportBulkPDF('general')" style="white-space:nowrap;">📄 一般社員PDF出力</button>
+          <button class="btn btn-pdf" onclick="exportBulkPDF('manager')" style="white-space:nowrap;">📄 管理職PDF出力</button>
+        </div>
+      </div>
         <div class="register-form">
           <div class="form-grid">
             <div class="form-field full">
@@ -1050,8 +1056,274 @@ window.clearFilters = () => {
 
 document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') window.doLogin(); });
 
-// ── PDF出力 ──
-window.exportPDF = () => {
+// ── 一括PDF出力 ──
+window.exportBulkPDF = async (type) => {
+  const label = type === 'general' ? '一般社員' : '管理職';
+  const isGeneral = type === 'general';
+
+  // 対象ユーザーを取得
+  const usersSnap = await getDocs(collection(db, 'users'));
+  let users = [];
+  usersSnap.forEach(d => {
+    const u = d.data();
+    const isGeneralRole = GENERAL_ROLES.includes(u.role) || !u.role;
+    if (isGeneral && isGeneralRole) users.push({ id: d.id, ...u });
+    if (!isGeneral && !isGeneralRole) users.push({ id: d.id, ...u });
+  });
+
+  // 社員番号順ソート
+  users.sort((a, b) => {
+    if (!a.empid && !b.empid) return 0;
+    if (!a.empid) return 1;
+    if (!b.empid) return -1;
+    return a.empid.localeCompare(b.empid, 'ja', { numeric: true });
+  });
+
+  if (users.length === 0) {
+    alert(`${label}の登録データがありません`);
+    return;
+  }
+
+  // 各社員の評価データを取得
+  const evalData = {};
+  await Promise.all(users.map(async u => {
+    const snap = await getDoc(doc(db, 'evaluations', u.id));
+    evalData[u.id] = snap.exists() ? snap.data() : null;
+  }));
+
+  const year = new Date().getFullYear();
+  const today = new Date().toLocaleDateString('ja-JP');
+  const themeHeader = isGeneral ? '#3a3632' : '#b8963e';
+  const themeHeaderText = isGeneral ? '#b8963e' : '#1a1714';
+  const themeBg = isGeneral ? '#f5f0e8' : '#fdf5e0';
+  const themeBorder = isGeneral ? '#c8b887' : '#d4b868';
+
+  // ランク色
+  function rankColor(r) {
+    return r==='S'?'#b8963e':r==='A'?'#2ecc71':r==='B'?'#3498db':r==='C'?'#e67e22':'#c0392b';
+  }
+  function rankTextColor(r) { return r==='S'?'#1a1714':'white'; }
+
+  // カテゴリスコア計算
+  function calcCatScore(scores, cat, count) {
+    let sum = 0, c = 0;
+    for (let i = 0; i < count; i++) {
+      const v = scores?.[`${cat}_${i}`] || 0;
+      if (v > 0) { sum += v; c++; }
+    }
+    return c > 0 ? (sum / c).toFixed(1) : '—';
+  }
+
+  function calcSummary(scores, hasManager) {
+    const cats = hasManager ? ['gyoseki','skill','conduct','mgmt'] : ['gyoseki','skill','conduct'];
+    const weights = hasManager
+      ? {gyoseki:0.30,skill:0.25,conduct:0.25,mgmt:0.20}
+      : {gyoseki:0.375,skill:0.3125,conduct:0.3125};
+    let totalWeighted = 0, filled = 0, total = 0;
+    cats.forEach(cat => {
+      let sum = 0, count = 0;
+      for (let i = 0; i < 4; i++) {
+        const v = scores?.[`${cat}_${i}`] || 0;
+        if (v > 0) { sum += v; count++; filled++; }
+        total++;
+      }
+      const avg = count > 0 ? sum/count : 0;
+      totalWeighted += avg * weights[cat] * 20;
+    });
+    if (filled === 0) return { total: '—', avg: '—', rank: '—' };
+    const t = Math.round(totalWeighted);
+    const rank = t>=90?'S':t>=75?'A':t>=55?'B':t>=35?'C':'D';
+    return { total: t, avg: (totalWeighted/20).toFixed(2), rank };
+  }
+
+  // 一覧表HTML
+  const hasManager = !isGeneral;
+  const listRows = users.map((u, idx) => {
+    const ev = evalData[u.id];
+    const sc = ev?.scores;
+    const sum = calcSummary(sc, hasManager);
+    const gyoseki = calcCatScore(sc, 'gyoseki', 4);
+    const skill = calcCatScore(sc, 'skill', 4);
+    const conduct = calcCatScore(sc, 'conduct', 4);
+    const mgmt = hasManager ? calcCatScore(sc, 'mgmt', 4) : null;
+    const bg = idx % 2 === 0 ? '#fdfaf5' : 'white';
+    const rankBadge = sum.rank !== '—'
+      ? `<span style="background:${rankColor(sum.rank)};color:${rankTextColor(sum.rank)};padding:1px 5px;border-radius:2px;font-weight:700;">${sum.rank}</span>`
+      : '—';
+    return `<tr style="border-top:0.5px solid #d4cfc8; background:${bg};">
+      <td style="padding:3px 5px;">${u.empid||'—'}</td>
+      <td style="padding:3px 5px; font-weight:700;">${u.name}</td>
+      <td style="padding:3px 5px; color:#4a4642;">${u.dept||'—'}</td>
+      <td style="padding:3px 5px;">${ROLE_LABELS[u.role]||'—'}</td>
+      <td style="padding:3px 5px; text-align:center; color:#b8963e; font-weight:700;">${sum.total}</td>
+      <td style="padding:3px 5px; text-align:center; color:#b8963e;">${sum.avg}</td>
+      <td style="padding:3px 5px; text-align:center;">${rankBadge}</td>
+      <td style="padding:3px 5px; text-align:center;">${gyoseki}</td>
+      <td style="padding:3px 5px; text-align:center;">${skill}</td>
+      <td style="padding:3px 5px; text-align:center;">${conduct}</td>
+      ${hasManager ? `<td style="padding:3px 5px; text-align:center;">${mgmt}</td>` : ''}
+    </tr>`;
+  }).join('');
+
+  const listPage = `
+  <div class="pdf-wrap" style="page-break-after:always;">
+    <div class="pdf-header">
+      <div>
+        <div class="pdf-header-sub">PERFORMANCE EVALUATION</div>
+        <div class="pdf-header-title">人事考課表　${label}一覧</div>
+      </div>
+      <div class="pdf-header-year">${year}</div>
+    </div>
+    <table style="width:100%; border-collapse:collapse; font-size:10px; margin-top:8px;">
+      <thead><tr style="background:${themeHeader};">
+        <th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:left; width:9%;">社員番号</th>
+        <th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:left; width:11%;">氏名</th>
+        <th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:left; width:20%;">部署</th>
+        <th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:left; width:10%;">役職</th>
+        <th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:center; width:8%;">総合得点</th>
+        <th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:center; width:8%;">平均</th>
+        <th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:center; width:7%;">評価</th>
+        <th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:center; width:7%;">業績</th>
+        <th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:center; width:7%;">能力</th>
+        <th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:center; width:7%;">行動</th>
+        ${hasManager ? `<th style="padding:4px 5px; color:${themeHeaderText}; font-weight:400; text-align:center; width:7%;">管理</th>` : ''}
+      </tr></thead>
+      <tbody>${listRows}</tbody>
+    </table>
+    <div style="margin-top:10px; padding-top:6px; border-top:0.5px solid #d4cfc8; display:flex; justify-content:space-between; font-size:8px; color:#8a8480;">
+      <span>堺総合サービス株式会社</span>
+      <span>出力日：${today}　全${users.length}名</span>
+    </div>
+  </div>`;
+
+  // 各社員の詳細シート
+  const ITEMS_DATA = {
+    gyoseki: [
+      { name:'目標達成度', desc:'定量・定性目標に対する達成度' },
+      { name:'業務品質', desc:'正確性・完成度・クオリティ' },
+      { name:'生産性・効率性', desc:'スピードと工数対効果' },
+      { name:'課題解決力', desc:'問題発見・自律的解決力' },
+    ],
+    skill: [
+      { name:'専門知識・技術', desc:'知識・スキルの習得・活用' },
+      { name:'企画・提案力', desc:'アイデア・改善提案能力' },
+      { name:'判断力・決断力', desc:'状況把握・適切な判断力' },
+      { name:'自己啓発', desc:'スキルアップへの取り組み' },
+    ],
+    conduct: [
+      { name:'規律・責任感', desc:'ルール遵守・誠実さ' },
+      { name:'チームワーク', desc:'協調性・助け合い' },
+      { name:'コミュニケーション', desc:'報連相・情報共有' },
+      { name:'顧客・相手志向', desc:'ニーズ把握・行動力' },
+    ],
+    mgmt: [
+      { name:'チーム目標管理', desc:'チームの目標設定と進捗管理' },
+      { name:'部下育成・指導', desc:'メンバーの成長を促す指導力' },
+      { name:'リーダーシップ', desc:'チームを方向付ける牽引力' },
+      { name:'組織貢献・戦略眼', desc:'部門全体を俯瞰した行動と提言' },
+    ],
+  };
+
+  function dots(v) { return v > 0 ? '●'.repeat(v)+'○'.repeat(5-v) : '○○○○○'; }
+
+  function buildDetailSection(cat, sc, comments, title, icon, weight) {
+    const rows = ITEMS_DATA[cat].map((item, idx) => {
+      const v = sc?.[`${cat}_${idx}`] || 0;
+      return `<tr style="border-top:0.5px solid #d4cfc8;">
+        <td style="padding:3px 5px;">${item.name}</td>
+        <td style="padding:3px 5px; color:#8a8480; font-size:10px;">${item.desc}</td>
+        <td style="padding:3px 5px; text-align:center; letter-spacing:-1px;">${dots(v)}</td>
+        <td style="padding:3px 5px; text-align:center; color:#b8963e; font-weight:700;">${v||'—'}</td>
+      </tr>`;
+    }).join('');
+    const comment = comments?.[cat] || '';
+    return `
+    <div class="pdf-section">
+      <div class="pdf-section-header">
+        <div class="pdf-section-icon" style="background:${themeHeader}; color:${themeHeaderText};">${icon}</div>
+        <div class="pdf-section-title">${title}</div>
+        <div class="pdf-section-weight">配点比重 ${weight}</div>
+      </div>
+      <table class="pdf-table" style="border:1.5px solid ${themeBorder};">
+        <thead><tr style="background:${themeHeader};">
+          <th style="width:32%; color:${themeHeaderText};">評価項目</th>
+          <th style="width:33%; color:${themeHeaderText};">説明</th>
+          <th class="c" style="width:22%; color:${themeHeaderText};">評価</th>
+          <th class="c" style="width:13%; color:${themeHeaderText};">点</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${comment ? `<div class="pdf-comment" style="background:${themeBg}; border-color:${themeBorder};"><span class="pdf-comment-label">コメント：</span>${comment}</div>` : ''}
+    </div>`;
+  }
+
+  const detailPages = users.map(u => {
+    const ev = evalData[u.id];
+    const sc = ev?.scores;
+    const comments = ev?.comments;
+    const sum = calcSummary(sc, hasManager);
+    const rankBg = sum.rank !== '—' ? rankColor(sum.rank) : '#888';
+    const rankTxt = sum.rank !== '—' ? rankTextColor(sum.rank) : 'white';
+    const gyoseki = calcCatScore(sc, 'gyoseki', 4);
+    const skill = calcCatScore(sc, 'skill', 4);
+    const conduct = calcCatScore(sc, 'conduct', 4);
+    const mgmt = hasManager ? calcCatScore(sc, 'mgmt', 4) : null;
+
+    const cats = hasManager
+      ? [['gyoseki','業績・目標達成','業','30%'],['skill','能力・スキル','能','25%'],['conduct','行動・姿勢・態度','行','25%'],['mgmt','マネジメント力','管','20%']]
+      : [['gyoseki','業績・目標達成','業','30%'],['skill','能力・スキル','能','25%'],['conduct','行動・姿勢・態度','行','25%']];
+
+    return `
+    <div class="pdf-wrap" style="page-break-after:always;">
+      <div class="pdf-header">
+        <div>
+          <div class="pdf-header-sub">PERFORMANCE EVALUATION</div>
+          <div class="pdf-header-title">人事考課表</div>
+        </div>
+        <div class="pdf-header-year">${year}</div>
+      </div>
+      <div class="pdf-info">
+        <div class="pdf-info-row">
+          <div class="pdf-info-cell" style="flex:0.9"><div class="pdf-info-label">社員番号</div><div class="pdf-info-val">${u.empid||'—'}</div></div>
+          <div class="pdf-info-cell" style="flex:1.2"><div class="pdf-info-label">氏名</div><div class="pdf-info-val">${u.name}</div></div>
+          <div class="pdf-info-cell" style="flex:0.9"><div class="pdf-info-label">役職</div><div class="pdf-info-val">${ROLE_LABELS[u.role]||'—'}</div></div>
+          <div class="pdf-info-cell" style="flex:1.2"><div class="pdf-info-label">評価者</div><div class="pdf-info-val">${ev?.evaluator||'—'}</div></div>
+        </div>
+        <div class="pdf-info-row">
+          <div class="pdf-info-cell" style="flex:1.8"><div class="pdf-info-label">部署</div><div class="pdf-info-val">${u.dept||'—'}</div></div>
+          <div class="pdf-info-cell" style="flex:1.4"><div class="pdf-info-label">評価期間</div><div class="pdf-info-val">${ev?.period||'—'}</div></div>
+        </div>
+      </div>
+      <div class="pdf-summary">
+        <div class="pdf-summary-item"><div class="pdf-summary-label">総合得点</div><div class="pdf-summary-val">${sum.total}</div></div>
+        <div class="pdf-summary-div"></div>
+        <div class="pdf-summary-item"><div class="pdf-summary-label">平均スコア</div><div class="pdf-summary-val sm">${sum.avg}</div></div>
+        <div class="pdf-summary-div"></div>
+        <div class="pdf-summary-item"><div class="pdf-summary-label">総合評価</div><div class="pdf-rank" style="background:${rankBg};color:${rankTxt};">${sum.rank}</div></div>
+        <div class="pdf-summary-div"></div>
+        <div style="display:flex;gap:10px;">
+          <div class="pdf-summary-item"><div class="pdf-summary-label">業績</div><div class="pdf-summary-val sm">${gyoseki}</div></div>
+          <div class="pdf-summary-item"><div class="pdf-summary-label">能力</div><div class="pdf-summary-val sm">${skill}</div></div>
+          <div class="pdf-summary-item"><div class="pdf-summary-label">行動</div><div class="pdf-summary-val sm">${conduct}</div></div>
+          ${hasManager ? `<div class="pdf-summary-item"><div class="pdf-summary-label">管理</div><div class="pdf-summary-val sm">${mgmt}</div></div>` : ''}
+        </div>
+      </div>
+      ${cats.map(([cat, title, icon, weight]) => buildDetailSection(cat, sc, comments, title, icon, weight)).join('')}
+      <div class="pdf-section">
+        <div class="pdf-section-header">
+          <div class="pdf-section-icon" style="background:${themeHeader}; color:${themeHeaderText};">総</div>
+          <div class="pdf-section-title">総合コメント</div>
+        </div>
+        ${comments?.overall ? `<div class="pdf-comment" style="background:${themeBg}; border-color:${themeBorder}; margin-bottom:4px;"><span class="pdf-comment-label">評価者コメント：</span>${comments.overall}</div>` : ''}
+        ${comments?.next ? `<div class="pdf-comment" style="background:${themeBg}; border-color:${themeBorder};"><span class="pdf-comment-label">次期目標・育成方針：</span>${comments.next}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('pdf-container').innerHTML = listPage + detailPages;
+  window.print();
+  setTimeout(() => { document.getElementById('pdf-container').innerHTML = ''; }, 1500);
+};
   const name = document.getElementById('info-name').value || '—';
   const empid = document.getElementById('info-empid').value || '—';
   const dept = document.getElementById('info-dept').value || '—';
