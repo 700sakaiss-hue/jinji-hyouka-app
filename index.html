@@ -14,6 +14,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--paper); font-family: 'Noto Sans JP', sans-serif; color: var(--ink); min-height: 100vh; }
 
+  /* ── LOGIN ── */
   #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--ink); }
   .login-box { background: var(--cream); border-radius: 6px; padding: 48px 40px; width: 100%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
   .login-title { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 6px; }
@@ -26,6 +27,7 @@
   .login-btn:hover { background: #2d2a27; }
   .login-error { color: #c0392b; font-size: 12px; text-align: center; margin-top: 12px; min-height: 18px; }
 
+  /* ── HEADER ── */
   .header { background: var(--ink); position: relative; overflow: hidden; }
   .header::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(184,150,62,0.06) 60px, rgba(184,150,62,0.06) 61px); }
   .header-inner { max-width: 900px; margin: 0 auto; padding: 36px 40px 32px; display: flex; align-items: flex-end; justify-content: space-between; position: relative; }
@@ -37,6 +39,7 @@
   .logout-btn { padding: 5px 14px; background: transparent; border: 1px solid rgba(184,150,62,0.4); border-radius: 2px; color: var(--gold-dim); font-size: 11px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s; }
   .logout-btn:hover { border-color: var(--gold); color: var(--gold); }
 
+  /* ── NAV ── */
   .nav-bar { background: var(--gold); }
   .nav-bar-inner { max-width: 900px; margin: 0 auto; display: flex; padding: 0 40px; }
   .nav-tab { padding: 12px 24px; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: rgba(26,23,20,0.5); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Noto Sans JP', sans-serif; }
@@ -44,26 +47,82 @@
 
   .main { max-width: 900px; margin: 0 auto; padding: 36px 40px 60px; }
 
+  /* ── ROLE SWITCHER ── */
   .role-switcher { display: flex; gap: 0; margin-bottom: 28px; border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; }
   .role-switch-btn { flex: 1; padding: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-faint); cursor: pointer; border: none; background: var(--cream); font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s; border-right: 1px solid var(--border); }
   .role-switch-btn:last-child { border-right: none; }
   .role-switch-btn.active { background: var(--ink); color: var(--gold); }
 
+  /* ── MEMBER BAR ── */
   .member-bar { background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .member-bar-label { font-size: 11px; color: var(--ink-faint); letter-spacing: 0.15em; font-weight: 500; white-space: nowrap; }
   .member-btn { padding: 6px 16px; border-radius: 2px; font-size: 12px; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; border: 1.5px solid var(--border); background: white; color: var(--ink-light); transition: all 0.15s; }
   .member-btn.active { background: var(--ink); color: var(--gold); border-color: var(--ink); }
-
   .editing-notice { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px; padding: 10px 16px; font-size: 12px; color: #2e7d32; margin-bottom: 20px; }
 
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 36px; background: var(--cream); }
-  .info-cell { padding: 14px 18px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  /* ── INFO GRID（改善版） ── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 36px;
+    background: var(--cream);
+    box-shadow: 0 2px 8px rgba(26,23,20,0.06);
+  }
+  .info-cell {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--cream);
+    transition: background 0.15s;
+  }
+  .info-cell:hover { background: white; }
   .info-cell:nth-child(3), .info-cell:nth-child(6), .info-cell:last-child { border-right: none; }
   .info-cell:nth-last-child(-n+3) { border-bottom: none; }
-  .info-label { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.15em; margin-bottom: 6px; font-weight: 500; }
-  .info-input { width: 100%; border: none; background: none; font-family: 'Noto Sans JP', sans-serif; font-size: 14px; color: var(--ink); outline: none; padding: 0; }
-  .info-input::placeholder { color: var(--border); }
+  .info-label {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .info-label::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 12px;
+    background: var(--gold);
+    border-radius: 2px;
+  }
+  .info-input {
+    width: 100%;
+    border: none;
+    background: none;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    outline: none;
+    padding: 0;
+    line-height: 1.4;
+  }
+  .info-input::placeholder { color: #ccc; font-weight: 400; font-size: 13px; }
+  .info-empid-wrap { position: relative; display: flex; align-items: center; gap: 8px; }
+  .empid-search-btn {
+    padding: 4px 10px; background: var(--ink); color: var(--gold);
+    border: none; border-radius: 3px; font-size: 11px; font-weight: 700;
+    cursor: pointer; white-space: nowrap; font-family: 'Noto Sans JP', sans-serif;
+    transition: background 0.2s; flex-shrink: 0;
+  }
+  .empid-search-btn:hover { background: #2d2a27; }
 
+  /* ── SECTION ── */
   .section { margin-bottom: 32px; animation: fadeUp 0.4s ease both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--ink); }
@@ -71,27 +130,32 @@
   .section-title { font-family: 'Noto Serif JP', serif; font-size: 17px; font-weight: 700; letter-spacing: 0.06em; }
   .section-weight { margin-left: auto; font-size: 11px; color: var(--ink-faint); letter-spacing: 0.1em; }
 
-  .eval-table { width: 100%; border-collapse: collapse; background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; font-size: 13px; }
+  /* ── EVAL TABLE（改善版） ── */
+  .eval-table { width: 100%; border-collapse: collapse; background: var(--cream); border: 1.5px solid var(--border); border-radius: 6px; overflow: hidden; font-size: 13px; box-shadow: 0 2px 8px rgba(26,23,20,0.04); }
   .eval-table thead tr { background: var(--ink); }
-  .eval-table th { padding: 10px 14px; color: var(--gold-dim); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-align: left; }
+  .eval-table th { padding: 12px 16px; color: var(--gold-dim); font-weight: 600; font-size: 12px; letter-spacing: 0.15em; text-align: left; }
   .eval-table th.center { text-align: center; }
   .eval-table tr + tr td { border-top: 1px solid var(--border); }
-  .eval-table td { padding: 12px 14px; vertical-align: middle; }
-  .item-name { font-weight: 500; color: var(--ink); font-size: 13.5px; }
-  .item-desc { font-size: 11.5px; color: var(--ink-faint); margin-top: 3px; line-height: 1.5; }
+  .eval-table tr:hover td { background: #f5f0e8; }
+  .eval-table td { padding: 14px 16px; vertical-align: middle; }
+  .item-name { font-weight: 700; color: var(--ink); font-size: 14px; margin-bottom: 4px; }
+  .item-desc { font-size: 12px; color: var(--ink-faint); line-height: 1.6; }
 
+  /* ── STARS ── */
   .stars { display: flex; gap: 4px; justify-content: center; }
-  .star-btn { width: 28px; height: 28px; background: none; border: 1.5px solid var(--border); border-radius: 2px; cursor: pointer; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: var(--border); }
-  .star-btn:hover { border-color: var(--gold); }
+  .star-btn { width: 32px; height: 32px; background: none; border: 1.5px solid var(--border); border-radius: 3px; cursor: pointer; font-size: 14px; font-weight: 700; line-height: 1; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: var(--ink-faint); }
+  .star-btn:hover { border-color: var(--gold); color: var(--gold); transform: scale(1.1); }
   .star-btn.active { background: var(--gold); border-color: var(--gold); color: var(--ink); }
   .star-btn[data-val="5"].active { background: var(--ink); border-color: var(--ink); color: var(--gold); }
-  .score-badge { display: inline-block; min-width: 32px; text-align: center; font-weight: 700; font-size: 16px; color: var(--gold); font-family: 'Noto Serif JP', serif; }
+  .score-badge { display: inline-block; min-width: 32px; text-align: center; font-weight: 700; font-size: 18px; color: var(--gold); font-family: 'Noto Serif JP', serif; }
 
+  /* ── COMMENT ── */
   .comment-box { background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px; padding: 14px 18px; margin-top: 10px; }
-  .comment-label { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.15em; margin-bottom: 8px; font-weight: 500; }
+  .comment-label { font-size: 11px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 8px; font-weight: 700; }
   textarea { width: 100%; min-height: 70px; border: none; background: none; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; color: var(--ink); outline: none; resize: vertical; line-height: 1.7; }
   textarea::placeholder { color: var(--border); }
 
+  /* ── SUMMARY ── */
   .summary-bar { background: var(--ink); border-radius: 4px; padding: 20px 28px; display: flex; align-items: center; gap: 32px; margin-bottom: 32px; flex-wrap: wrap; }
   .summary-item { text-align: center; }
   .summary-label { font-size: 10px; color: var(--gold-dim); letter-spacing: 0.2em; margin-bottom: 4px; }
@@ -102,6 +166,7 @@
   .rank-S { background: var(--gold); color: var(--ink); } .rank-A { background: #2ecc71; color: white; }
   .rank-B { background: #3498db; color: white; } .rank-C { background: #e67e22; color: white; } .rank-D { background: #c0392b; color: white; }
 
+  /* ── ACTIONS ── */
   .actions { display: flex; gap: 14px; justify-content: flex-end; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--border); }
   .btn { padding: 12px 28px; border-radius: 2px; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; border: none; }
   .btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--ink-light); }
@@ -110,16 +175,16 @@
   .btn-primary:hover { background: #2d2a27; }
 
   .section[data-role] { display: none; }
-  .progress-bar-wrap { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 16px; margin-bottom: 36px; }
+  .progress-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 16px; margin-bottom: 36px; }
   .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%); border-radius: 2px; transition: width 0.5s ease; }
 
+  /* ── 管理画面 ── */
   #admin-screen { display: none; }
   .admin-section { margin-bottom: 40px; }
   .admin-section-title { font-family: 'Noto Serif JP', serif; font-size: 17px; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--ink); }
-
   .register-form { background: var(--cream); border: 1.5px solid var(--border); border-radius: 4px; padding: 24px; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .form-field label { display: block; font-size: 10px; color: var(--ink-faint); letter-spacing: 0.15em; margin-bottom: 6px; font-weight: 500; }
+  .form-field label { display: block; font-size: 11px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 6px; font-weight: 700; }
   .form-field input, .form-field select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 4px; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; color: var(--ink); background: white; outline: none; transition: border-color 0.2s; }
   .form-field input:focus, .form-field select:focus { border-color: var(--gold); }
   .form-field.full { grid-column: 1 / -1; }
@@ -147,7 +212,7 @@
     .info-cell:nth-child(2n) { border-right: none; }
     .info-cell:nth-last-child(-n+2) { border-bottom: none; }
     .info-cell:nth-last-child(-n+3) { border-bottom: 1px solid var(--border); }
-    .stars { gap: 2px; } .star-btn { width: 26px; height: 26px; font-size: 13px; }
+    .stars { gap: 2px; } .star-btn { width: 28px; height: 28px; font-size: 13px; }
     .summary-bar { gap: 18px; } .nav-bar-inner { padding: 0 20px; }
     .header-user { top: 8px; right: 20px; }
     .form-grid { grid-template-columns: 1fr; }
@@ -157,6 +222,24 @@
 </style>
 </head>
 <body>
+
+<!-- 部署候補リスト -->
+<datalist id="dept-list">
+  <option value="電気通信(コムシス平林)">
+  <option value="電気通信(コムシス東淀川)">
+  <option value="電気通信(鴻池)">
+  <option value="電気通信(鳥飼)">
+  <option value="電気通信(横浜)">
+  <option value="電気通信(泉北)">
+  <option value="電気通信(ラピス神戸)">
+  <option value="電気通信(東京)">
+  <option value="電気通信(滋賀)">
+  <option value="電気通信(松原施工)">
+  <option value="電気通信(本社)">
+  <option value="電気通信(本社工事部)">
+  <option value="電気通信(淀屋橋)">
+  <option value="電気通信(コムシス施工)">
+</datalist>
 
 <div id="login-screen">
   <div class="login-box">
@@ -194,6 +277,7 @@
     </div>
   </div>
 
+  <!-- 評価シート -->
   <div id="eval-screen">
     <div class="main">
       <div class="role-switcher">
@@ -208,12 +292,33 @@
       <div id="editing-notice" class="editing-notice" style="display:none">✏️ <span id="editing-name"></span> の評価を編集中</div>
 
       <div class="info-grid">
-        <div class="info-cell"><div class="info-label">部　　署</div><input class="info-input" id="info-dept" placeholder="例：営業本部 第一営業部"></div>
-        <div class="info-cell"><div class="info-label">氏　　名</div><input class="info-input" id="info-name" placeholder="山田 太郎"></div>
-        <div class="info-cell"><div class="info-label">社員番号</div><input class="info-input" id="info-empid" placeholder="A-00001"></div>
-        <div class="info-cell"><div class="info-label">役　　職</div><input class="info-input" id="info-position" placeholder="主任"></div>
-        <div class="info-cell"><div class="info-label">評価期間</div><input class="info-input" id="eval-period" placeholder="2025年4月〜2026年3月"></div>
-        <div class="info-cell"><div class="info-label">評価者氏名</div><input class="info-input" id="info-evaluator" placeholder="鈴木 一郎"></div>
+        <div class="info-cell">
+          <div class="info-label">社員番号</div>
+          <div class="info-empid-wrap">
+            <input class="info-input" id="info-empid" placeholder="A-00001" style="font-size:14px;">
+            <button class="empid-search-btn" onclick="searchByEmpId()">検索</button>
+          </div>
+        </div>
+        <div class="info-cell">
+          <div class="info-label">氏　名</div>
+          <input class="info-input" id="info-name" placeholder="山田 太郎">
+        </div>
+        <div class="info-cell">
+          <div class="info-label">部　署</div>
+          <input class="info-input" id="info-dept" placeholder="電気通信(本社)" list="dept-list">
+        </div>
+        <div class="info-cell">
+          <div class="info-label">役　職</div>
+          <input class="info-input" id="info-position" placeholder="主任">
+        </div>
+        <div class="info-cell">
+          <div class="info-label">評価期間</div>
+          <input class="info-input" id="eval-period" placeholder="2025年4月〜2026年3月">
+        </div>
+        <div class="info-cell">
+          <div class="info-label">評価者氏名</div>
+          <input class="info-input" id="info-evaluator" placeholder="鈴木 一郎">
+        </div>
       </div>
 
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
@@ -230,23 +335,23 @@
 
       <div class="section">
         <div class="section-header"><div class="section-icon">業</div><div class="section-title">業績・目標達成</div><div class="section-weight">配点比重 30%</div></div>
-        <table class="eval-table"><thead><tr><th style="width:40%">評価項目</th><th class="center" style="width:30%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-gyoseki"></tbody></table>
-        <div class="comment-box"><div class="comment-label">コメント・自己評価記入欄</div><textarea id="comment-gyoseki" placeholder="目標に対する達成状況、特筆すべき成果、課題等をご記入ください。"></textarea></div>
+        <table class="eval-table"><thead><tr><th style="width:45%">評価項目</th><th class="center" style="width:35%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-gyoseki"></tbody></table>
+        <div class="comment-box"><div class="comment-label">コメント・自己評価</div><textarea id="comment-gyoseki" placeholder="目標に対する達成状況、特筆すべき成果、課題等をご記入ください。"></textarea></div>
       </div>
       <div class="section">
         <div class="section-header"><div class="section-icon">能</div><div class="section-title">能力・スキル</div><div class="section-weight">配点比重 25%</div></div>
-        <table class="eval-table"><thead><tr><th style="width:40%">評価項目</th><th class="center" style="width:30%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-skill"></tbody></table>
-        <div class="comment-box"><div class="comment-label">コメント・自己評価記入欄</div><textarea id="comment-skill" placeholder="習得・発揮したスキル、成長した点、今後の課題等をご記入ください。"></textarea></div>
+        <table class="eval-table"><thead><tr><th style="width:45%">評価項目</th><th class="center" style="width:35%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-skill"></tbody></table>
+        <div class="comment-box"><div class="comment-label">コメント・自己評価</div><textarea id="comment-skill" placeholder="習得・発揮したスキル、成長した点、今後の課題等をご記入ください。"></textarea></div>
       </div>
       <div class="section">
         <div class="section-header"><div class="section-icon">行</div><div class="section-title">行動・姿勢・態度</div><div class="section-weight">配点比重 25%</div></div>
-        <table class="eval-table"><thead><tr><th style="width:40%">評価項目</th><th class="center" style="width:30%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-conduct"></tbody></table>
-        <div class="comment-box"><div class="comment-label">コメント・自己評価記入欄</div><textarea id="comment-conduct" placeholder="日頃の行動・姿勢について具体的なエピソードとともにご記入ください。"></textarea></div>
+        <table class="eval-table"><thead><tr><th style="width:45%">評価項目</th><th class="center" style="width:35%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-conduct"></tbody></table>
+        <div class="comment-box"><div class="comment-label">コメント・自己評価</div><textarea id="comment-conduct" placeholder="日頃の行動・姿勢について具体的なエピソードとともにご記入ください。"></textarea></div>
       </div>
       <div class="section" data-role="manager" id="section-mgmt">
         <div class="section-header"><div class="section-icon">管</div><div class="section-title">マネジメント力</div><div class="section-weight">配点比重 20%</div></div>
-        <table class="eval-table"><thead><tr><th style="width:40%">評価項目</th><th class="center" style="width:30%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-mgmt"></tbody></table>
-        <div class="comment-box"><div class="comment-label">コメント・自己評価記入欄</div><textarea id="comment-mgmt" placeholder="チームマネジメントや部下育成の実績・課題等をご記入ください。"></textarea></div>
+        <table class="eval-table"><thead><tr><th style="width:45%">評価項目</th><th class="center" style="width:35%">評　価</th><th class="center" style="width:10%">点数</th></tr></thead><tbody id="tbody-mgmt"></tbody></table>
+        <div class="comment-box"><div class="comment-label">コメント・自己評価</div><textarea id="comment-mgmt" placeholder="チームマネジメントや部下育成の実績・課題等をご記入ください。"></textarea></div>
       </div>
       <div class="section">
         <div class="section-header"><div class="section-icon">総</div><div class="section-title">総合コメント</div></div>
@@ -262,6 +367,7 @@
     </div>
   </div>
 
+  <!-- 管理画面 -->
   <div id="admin-screen">
     <div class="main">
       <div class="admin-section">
@@ -277,26 +383,12 @@
               <input type="text" id="reg-name" placeholder="山田 太郎">
             </div>
             <div class="form-field">
-              <label>部署</label>
-              <select id="reg-dept">
-                <option value="">-- 選択してください --</option>
-                <optgroup label="電気通信">
-                  <option value="電気通信(コムシス平林)">電気通信(コムシス平林)</option>
-                  <option value="電気通信(コムシス東淀川)">電気通信(コムシス東淀川)</option>
-                  <option value="電気通信(鴻池)">電気通信(鴻池)</option>
-                  <option value="電気通信(鳥飼)">電気通信(鳥飼)</option>
-                  <option value="電気通信(横浜)">電気通信(横浜)</option>
-                  <option value="電気通信(泉北)">電気通信(泉北)</option>
-                  <option value="電気通信(ラピス神戸)">電気通信(ラピス神戸)</option>
-                  <option value="電気通信(東京)">電気通信(東京)</option>
-                  <option value="電気通信(滋賀)">電気通信(滋賀)</option>
-                  <option value="電気通信(松原施工)">電気通信(松原施工)</option>
-                  <option value="電気通信(本社)">電気通信(本社)</option>
-                  <option value="電気通信(本社工事部)">電気通信(本社工事部)</option>
-                  <option value="電気通信(淀屋橋)">電気通信(淀屋橋)</option>
-                  <option value="電気通信(コムシス施工)">電気通信(コムシス施工)</option>
-                </optgroup>
-              </select>
+              <label>社員番号</label>
+              <input type="text" id="reg-empid" placeholder="A-00001">
+            </div>
+            <div class="form-field">
+              <label>部署（候補から選ぶか直接入力）</label>
+              <input type="text" id="reg-dept" placeholder="電気通信(本社)" list="dept-list">
             </div>
             <div class="form-field">
               <label>役職種別（閲覧・編集権限）</label>
@@ -320,15 +412,7 @@
       <div class="admin-section">
         <div class="admin-section-title">📋 登録済み社員一覧</div>
         <table class="user-table">
-          <thead>
-            <tr>
-              <th>氏名</th>
-              <th>部署</th>
-              <th>役職種別</th>
-              <th>UID</th>
-              <th></th>
-            </tr>
-          </thead>
+          <thead><tr><th>氏名</th><th>社員番号</th><th>部署</th><th>役職種別</th><th></th></tr></thead>
           <tbody id="user-list"></tbody>
         </table>
       </div>
@@ -339,7 +423,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAT1wA2_s05AoRUQr8eQHWRiX51Z_tKXjE",
@@ -354,20 +438,12 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 役職ラベル定義
 const ROLE_LABELS = {
-  general:   '一般社員',
-  kakaricho: '係長',
-  shunin:    '主任',
-  kachodai:  '課長代理',
-  fukubucho: '副部長',
-  jicho:     '次長',
-  manager:   '課長',
-  admin:     '管理者',
+  general:'一般社員', kakaricho:'係長', shunin:'主任',
+  kachodai:'課長代理', fukubucho:'副部長', jicho:'次長',
+  manager:'課長', admin:'管理者',
 };
-
-// 課長以上（閲覧・編集権限あり）
-const MANAGER_ROLES = ['manager', 'kachodai', 'fukubucho', 'jicho', 'admin'];
+const MANAGER_ROLES = ['manager','kachodai','fukubucho','jicho','admin'];
 
 const ITEMS = {
   gyoseki: [
@@ -432,19 +508,14 @@ async function initApp() {
   document.getElementById('year-display').textContent = now.getFullYear();
   document.getElementById('eval-period').placeholder = `${now.getFullYear()-1}年4月〜${now.getFullYear()}年3月`;
   document.getElementById('user-badge').textContent = `${currentUserData.name}（${ROLE_LABELS[currentUserData.role] || '一般社員'}）`;
-
-  if (currentUserData.role === 'admin') {
-    document.getElementById('admin-tab').style.display = 'block';
-  }
+  if (currentUserData.role === 'admin') document.getElementById('admin-tab').style.display = 'block';
 
   buildTable('tbody-gyoseki', ITEMS.gyoseki, 'gyoseki');
   buildTable('tbody-skill', ITEMS.skill, 'skill');
   buildTable('tbody-conduct', ITEMS.conduct, 'conduct');
   buildTable('tbody-mgmt', ITEMS.mgmt, 'mgmt');
 
-  if (MANAGER_ROLES.includes(currentUserData.role)) {
-    await loadMemberBar();
-  }
+  if (MANAGER_ROLES.includes(currentUserData.role)) await loadMemberBar();
 
   viewingUserId = currentUser.uid;
   viewingUserName = currentUserData.name;
@@ -456,9 +527,7 @@ async function initApp() {
 window.showPage = (page) => {
   document.getElementById('eval-screen').style.display = page === 'eval' ? 'block' : 'none';
   document.getElementById('admin-screen').style.display = page === 'admin' ? 'block' : 'none';
-  document.querySelectorAll('.nav-tab').forEach((t, i) => {
-    t.classList.toggle('active', (i === 0 && page === 'eval') || (i === 1 && page === 'admin'));
-  });
+  document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', (i===0&&page==='eval')||(i===1&&page==='admin')));
   if (page === 'admin') loadUserList();
 };
 
@@ -466,7 +535,6 @@ async function loadMemberBar() {
   document.getElementById('member-bar').style.display = 'flex';
   const btnContainer = document.getElementById('member-buttons');
   btnContainer.innerHTML = '';
-
   const selfBtn = document.createElement('button');
   selfBtn.className = 'member-btn active';
   selfBtn.textContent = `自分（${currentUserData.name}）`;
@@ -512,6 +580,29 @@ function updateNotice() {
   }
 }
 
+// 社員番号で検索してオートフィル
+window.searchByEmpId = async () => {
+  const empid = document.getElementById('info-empid').value.trim();
+  if (!empid) return;
+  const q = query(collection(db, 'users'), where('empid', '==', empid));
+  const snap = await getDocs(q);
+  if (snap.empty) {
+    alert('該当する社員番号が見つかりませんでした');
+    return;
+  }
+  snap.forEach(d => {
+    const u = d.data();
+    document.getElementById('info-name').value = u.name || '';
+    document.getElementById('info-dept').value = u.dept || '';
+    document.getElementById('info-position').value = ROLE_LABELS[u.role] || '';
+  });
+};
+
+// Enterキーでも検索
+document.getElementById('info-empid').addEventListener('keydown', e => {
+  if (e.key === 'Enter') window.searchByEmpId();
+});
+
 async function loadData(uid) {
   resetFields();
   const snap = await getDoc(doc(db, 'evaluations', uid));
@@ -553,8 +644,7 @@ window.saveData = async () => {
     },
     updatedAt: new Date().toISOString(),
   });
-  const name = viewingUserId === currentUser.uid ? '自分' : viewingUserName;
-  alert(`${name}の評価を保存しました！`);
+  alert(`${viewingUserId === currentUser.uid ? '自分' : viewingUserName}の評価を保存しました！`);
 };
 
 function resetFields() {
@@ -640,7 +730,8 @@ window.resetAll = () => {
 window.registerUser = async () => {
   const uid = document.getElementById('reg-uid').value.trim();
   const name = document.getElementById('reg-name').value.trim();
-  const dept = document.getElementById('reg-dept').value;
+  const empid = document.getElementById('reg-empid').value.trim();
+  const dept = document.getElementById('reg-dept').value.trim();
   const role = document.getElementById('reg-role').value;
   const msgEl = document.getElementById('reg-msg');
 
@@ -649,13 +740,13 @@ window.registerUser = async () => {
     msgEl.className = 'form-msg error';
     return;
   }
-
   try {
-    await setDoc(doc(db, 'users', uid), { name, dept, role });
+    await setDoc(doc(db, 'users', uid), { name, empid, dept, role });
     msgEl.textContent = `✅ ${name} さんを登録しました！`;
     msgEl.className = 'form-msg success';
     document.getElementById('reg-uid').value = '';
     document.getElementById('reg-name').value = '';
+    document.getElementById('reg-empid').value = '';
     document.getElementById('reg-dept').value = '';
     document.getElementById('reg-role').value = 'general';
     await loadUserList();
@@ -672,13 +763,13 @@ async function loadUserList() {
   const snap = await getDocs(collection(db, 'users'));
   snap.forEach(d => {
     const u = d.data();
-    const roleClass = ['manager','kachodai','fukubucho','jicho'].includes(u.role) ? 'role-manager' : u.role === 'admin' ? 'role-admin' : 'role-general';
+    const roleClass = MANAGER_ROLES.includes(u.role) && u.role !== 'admin' ? 'role-manager' : u.role === 'admin' ? 'role-admin' : 'role-general';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>${u.name}</strong></td>
+      <td>${u.empid || '—'}</td>
       <td>${u.dept || '—'}</td>
       <td><span class="role-badge ${roleClass}">${ROLE_LABELS[u.role] || '一般社員'}</span></td>
-      <td style="font-size:11px;color:var(--ink-faint);">${d.id.slice(0,16)}...</td>
       <td>${d.id !== currentUser.uid ? `<button class="delete-btn" onclick="deleteUser('${d.id}','${u.name}')">削除</button>` : '<span style="font-size:11px;color:var(--ink-faint);">自分</span>'}</td>
     `;
     tbody.appendChild(tr);
