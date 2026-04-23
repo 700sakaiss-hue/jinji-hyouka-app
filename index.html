@@ -1339,7 +1339,7 @@ window.exportBulkPDF = async (type) => {
   const rankColor = rankChip.style.display !== 'none' ? rankChip.style.background || getComputedStyle(rankChip).backgroundColor : '#888';
   const catScores = document.getElementById('cat-scores').innerHTML;
 
-  const ITEMS = {
+  const ITEMS_PDF = {
     gyoseki: ['目標達成度','業務品質','生産性・効率性','課題解決力'],
     skill:   ['専門知識・技術','企画・提案力','判断力・決断力','自己啓発'],
     conduct: ['規律・責任感','チームワーク','コミュニケーション','顧客・相手志向'],
@@ -1365,7 +1365,7 @@ window.exportBulkPDF = async (type) => {
   }
 
   function buildSection(cat) {
-    const rows = ITEMS[cat].map((item, idx) => {
+    const rows = ITEMS_PDF[cat].map((item, idx) => {
       const key = `${cat}_${idx}`;
       const v = scores[key] || 0;
       return `<tr>
