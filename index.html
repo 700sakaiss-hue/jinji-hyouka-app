@@ -285,7 +285,11 @@
   <div class="header">
     <div class="header-user">
       <span class="user-badge" id="user-badge"></span>
-      <button class="logout-btn" onclick="doLogout()">ログアウト</button>
+      <button class="logout-btn" onclick="toggleUserMenu()" id="user-menu-btn">▼ メニュー</button>
+      <div id="user-menu" style="display:none; position:absolute; top:44px; right:40px; background:var(--cream); border:1.5px solid var(--border); border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,0.15); z-index:100; min-width:150px;">
+        <div onclick="openPasswordModal()" style="padding:10px 16px; font-size:12px; color:var(--ink); cursor:pointer; border-bottom:0.5px solid var(--border); transition:background 0.15s;" onmouseover="this.style.background='#f0efed'" onmouseout="this.style.background='transparent'">🔑 パスワード変更</div>
+        <div onclick="doLogout()" style="padding:10px 16px; font-size:12px; color:#c0392b; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='#fce4ec'" onmouseout="this.style.background='transparent'">ログアウト</div>
+      </div>
     </div>
     <div class="header-inner">
       <div><div class="header-title"><span>PERFORMANCE EVALUATION</span>人事考課表</div></div>
@@ -499,6 +503,31 @@
   </div>
 </div>
 
+<!-- パスワード変更モーダル -->
+<div id="password-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:var(--cream); border-radius:6px; padding:32px; width:100%; max-width:380px; margin:20px; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+    <div style="font-family:'Noto Serif JP',serif; font-size:16px; font-weight:700; margin-bottom:6px; padding-bottom:12px; border-bottom:2px solid var(--ink);">🔑 パスワード変更</div>
+    <div style="font-size:11px; color:var(--ink-faint); margin-bottom:20px;" id="pw-user-label"></div>
+    <div class="login-field">
+      <label>現在のパスワード</label>
+      <input type="password" id="pw-current" placeholder="現在のパスワード">
+    </div>
+    <div class="login-field">
+      <label>新しいパスワード（6文字以上）</label>
+      <input type="password" id="pw-new" placeholder="新しいパスワード">
+    </div>
+    <div class="login-field">
+      <label>新しいパスワード（確認）</label>
+      <input type="password" id="pw-confirm" placeholder="もう一度入力">
+    </div>
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
+      <button class="btn btn-ghost" onclick="closePasswordModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="changePassword()">変更する</button>
+    </div>
+    <div id="pw-msg" style="font-size:12px; margin-top:10px; min-height:18px;"></div>
+  </div>
+</div>
+
 <!-- 編集モーダル -->
 <div id="edit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
   <div style="background:var(--cream); border-radius:6px; padding:32px; width:100%; max-width:480px; margin:20px; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
@@ -542,7 +571,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -614,6 +643,77 @@ window.doLogin = async () => {
   }
 };
 window.doLogout = () => signOut(auth);
+
+// ── ユーザーメニュー ──
+window.toggleUserMenu = () => {
+  const menu = document.getElementById('user-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+
+// メニュー外クリックで閉じる
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('user-menu');
+  const btn = document.getElementById('user-menu-btn');
+  if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
+// ── パスワード変更 ──
+window.openPasswordModal = () => {
+  document.getElementById('user-menu').style.display = 'none';
+  document.getElementById('pw-user-label').textContent = currentUserData?.name || currentUser?.email || '';
+  document.getElementById('pw-current').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  document.getElementById('pw-msg').textContent = '';
+  document.getElementById('password-modal').style.display = 'flex';
+};
+
+window.closePasswordModal = () => {
+  document.getElementById('password-modal').style.display = 'none';
+};
+
+window.changePassword = async () => {
+  const current = document.getElementById('pw-current').value;
+  const newPw = document.getElementById('pw-new').value;
+  const confirm = document.getElementById('pw-confirm').value;
+  const msgEl = document.getElementById('pw-msg');
+  msgEl.textContent = '';
+
+  if (!current || !newPw || !confirm) {
+    msgEl.textContent = 'すべての項目を入力してください';
+    msgEl.style.color = '#c0392b';
+    return;
+  }
+  if (newPw.length < 6) {
+    msgEl.textContent = '新しいパスワードは6文字以上にしてください';
+    msgEl.style.color = '#c0392b';
+    return;
+  }
+  if (newPw !== confirm) {
+    msgEl.textContent = '新しいパスワードが一致しません';
+    msgEl.style.color = '#c0392b';
+    return;
+  }
+  try {
+    // 再認証
+    const credential = EmailAuthProvider.credential(currentUser.email, current);
+    await reauthenticateWithCredential(currentUser, credential);
+    // パスワード更新
+    await updatePassword(currentUser, newPw);
+    msgEl.textContent = '✅ パスワードを変更しました！';
+    msgEl.style.color = '#2e7d32';
+    setTimeout(() => closePasswordModal(), 1500);
+  } catch(e) {
+    if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+      msgEl.textContent = '現在のパスワードが正しくありません';
+    } else {
+      msgEl.textContent = 'エラーが発生しました: ' + e.message;
+    }
+    msgEl.style.color = '#c0392b';
+  }
+};
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
