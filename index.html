@@ -441,10 +441,50 @@
       </div>
       <div class="admin-section">
         <div class="admin-section-title">📋 登録済み社員一覧</div>
+        <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+          <div class="form-field" style="margin:0; flex:1; min-width:160px;">
+            <label>部署で絞り込み</label>
+            <select id="filter-dept" onchange="loadUserList()">
+              <option value="">すべて</option>
+              <option value="電気通信(コムシス平林)">電気通信(コムシス平林)</option>
+              <option value="電気通信(コムシス東淀川)">電気通信(コムシス東淀川)</option>
+              <option value="電気通信(鴻池)">電気通信(鴻池)</option>
+              <option value="電気通信(鳥飼)">電気通信(鳥飼)</option>
+              <option value="電気通信(横浜)">電気通信(横浜)</option>
+              <option value="電気通信(泉北)">電気通信(泉北)</option>
+              <option value="電気通信(ラピス神戸)">電気通信(ラピス神戸)</option>
+              <option value="電気通信(東京)">電気通信(東京)</option>
+              <option value="電気通信(滋賀)">電気通信(滋賀)</option>
+              <option value="電気通信(松原施工)">電気通信(松原施工)</option>
+              <option value="電気通信(本社)">電気通信(本社)</option>
+              <option value="電気通信(本社工事部)">電気通信(本社工事部)</option>
+              <option value="電気通信(淀屋橋)">電気通信(淀屋橋)</option>
+              <option value="電気通信(コムシス施工)">電気通信(コムシス施工)</option>
+            </select>
+          </div>
+          <div class="form-field" style="margin:0; flex:1; min-width:160px;">
+            <label>役職で絞り込み</label>
+            <select id="filter-role" onchange="loadUserList()">
+              <option value="">すべて</option>
+              <option value="general">一般社員</option>
+              <option value="kakaricho">係長</option>
+              <option value="shunin">主任</option>
+              <option value="kachodai">課長代理</option>
+              <option value="fukubucho">副部長</option>
+              <option value="jicho">次長</option>
+              <option value="manager">課長</option>
+              <option value="admin">管理者</option>
+            </select>
+          </div>
+          <div style="display:flex; align-items:flex-end;">
+            <button class="btn btn-ghost" style="padding:8px 16px; font-size:12px;" onclick="clearFilters()">リセット</button>
+          </div>
+        </div>
         <table class="user-table">
-          <thead><tr><th>氏名</th><th>社員番号</th><th>部署</th><th>役職種別</th><th></th></tr></thead>
+          <thead><tr><th>社員番号</th><th>氏名</th><th>部署</th><th>役職種別</th><th></th></tr></thead>
           <tbody id="user-list"></tbody>
         </table>
+        <div id="user-count" style="font-size:11px; color:var(--ink-faint); margin-top:8px;"></div>
       </div>
     </div>
   </div>
@@ -787,20 +827,39 @@ window.registerUser = async () => {
 async function loadUserList() {
   const tbody = document.getElementById('user-list');
   tbody.innerHTML = '';
+  const filterDept = document.getElementById('filter-dept')?.value || '';
+  const filterRole = document.getElementById('filter-role')?.value || '';
+
   const snap = await getDocs(collection(db, 'users'));
-  snap.forEach(d => {
-    const u = d.data();
+  let users = [];
+  snap.forEach(d => users.push({ id: d.id, ...d.data() }));
+
+  // フィルター
+  if (filterDept) users = users.filter(u => u.dept === filterDept);
+  if (filterRole) users = users.filter(u => u.role === filterRole);
+
+  // 社員番号順ソート（番号なしは末尾）
+  users.sort((a, b) => {
+    if (!a.empid && !b.empid) return 0;
+    if (!a.empid) return 1;
+    if (!b.empid) return -1;
+    return a.empid.localeCompare(b.empid, 'ja', { numeric: true });
+  });
+
+  users.forEach(u => {
     const roleClass = MANAGER_ROLES.includes(u.role) && u.role !== 'admin' ? 'role-manager' : u.role === 'admin' ? 'role-admin' : 'role-general';
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><strong>${u.name}</strong></td>
       <td>${u.empid || '—'}</td>
+      <td><strong>${u.name}</strong></td>
       <td>${u.dept || '—'}</td>
       <td><span class="role-badge ${roleClass}">${ROLE_LABELS[u.role] || '一般社員'}</span></td>
-      <td>${d.id !== currentUser.uid ? `<button class="delete-btn" onclick="deleteUser('${d.id}','${u.name}')">削除</button>` : '<span style="font-size:11px;color:var(--ink-faint);">自分</span>'}</td>
+      <td>${u.id !== currentUser.uid ? `<button class="delete-btn" onclick="deleteUser('${u.id}','${u.name}')">削除</button>` : '<span style="font-size:11px;color:var(--ink-faint);">自分</span>'}</td>
     `;
     tbody.appendChild(tr);
   });
+
+  document.getElementById('user-count').textContent = `${users.length} 件表示`;
 }
 
 window.deleteUser = async (uid, name) => {
@@ -808,6 +867,12 @@ window.deleteUser = async (uid, name) => {
   await deleteDoc(doc(db, 'users', uid));
   await loadUserList();
   if (MANAGER_ROLES.includes(currentUserData.role)) await loadMemberBar();
+};
+
+window.clearFilters = () => {
+  document.getElementById('filter-dept').value = '';
+  document.getElementById('filter-role').value = '';
+  loadUserList();
 };
 
 document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') window.doLogin(); });
