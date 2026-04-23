@@ -204,39 +204,39 @@
     body > *:not(#pdf-container) { display: none !important; }
     #pdf-container { display: block !important; }
   }
-  .pdf-wrap { font-family: 'Noto Sans JP', sans-serif; color: #1a1714; font-size: 10px; width: 210mm; min-height: 297mm; padding: 10mm 14mm; background: white; }
-  .pdf-header { background: #1a1714; margin: -10mm -14mm 8px; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; }
-  .pdf-header-sub { font-size: 8px; color: #e8d5a0; letter-spacing: 2px; }
-  .pdf-header-title { font-size: 20px; color: #fdfaf5; font-weight: 700; }
-  .pdf-header-year { font-size: 28px; color: #b8963e; font-weight: 700; }
-  .pdf-info { border: 1px solid #d4cfc8; margin-bottom: 8px; font-size: 9.5px; }
+  .pdf-wrap { font-family: 'Noto Sans JP', sans-serif; color: #1a1714; font-size: 11px; width: 210mm; min-height: 297mm; padding: 8mm 12mm; background: white; }
+  .pdf-header { background: #1a1714; margin: -8mm -12mm 8px; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; }
+  .pdf-header-sub { font-size: 8.5px; color: #e8d5a0; letter-spacing: 2px; margin-bottom: 2px; }
+  .pdf-header-title { font-size: 22px; color: #fdfaf5; font-weight: 700; letter-spacing: 0.05em; }
+  .pdf-header-year { font-size: 30px; color: #b8963e; font-weight: 700; flex-shrink: 0; }
+  .pdf-info { border: 1px solid #d4cfc8; margin-bottom: 8px; font-size: 10px; }
   .pdf-info-row { display: flex; border-bottom: 1px solid #d4cfc8; }
   .pdf-info-row:last-child { border-bottom: none; }
   .pdf-info-cell { padding: 5px 10px; border-right: 1px solid #d4cfc8; flex: 1; }
   .pdf-info-cell:last-child { border-right: none; }
-  .pdf-info-label { color: #8a8480; margin-bottom: 2px; font-size: 8px; }
+  .pdf-info-label { color: #8a8480; margin-bottom: 2px; font-size: 8.5px; }
   .pdf-info-val { font-weight: 700; white-space: nowrap; }
   .pdf-summary { background: #1a1714; padding: 6px 12px; display: flex; gap: 14px; margin-bottom: 8px; border-radius: 2px; align-items: center; }
   .pdf-summary-item { text-align: center; }
-  .pdf-summary-label { font-size: 8px; color: #e8d5a0; }
-  .pdf-summary-val { font-size: 16px; color: #b8963e; font-weight: 700; line-height: 1.2; }
-  .pdf-summary-val.sm { font-size: 13px; }
+  .pdf-summary-label { font-size: 8.5px; color: #e8d5a0; }
+  .pdf-summary-val { font-size: 17px; color: #b8963e; font-weight: 700; line-height: 1.2; }
+  .pdf-summary-val.sm { font-size: 14px; }
   .pdf-summary-div { width: 1px; height: 26px; background: rgba(255,255,255,0.1); }
-  .pdf-rank { font-size: 13px; color: white; padding: 1px 8px; border-radius: 2px; font-weight: 700; display: inline-block; line-height: 1.4; margin-top: 2px; }
+  .pdf-rank { font-size: 14px; color: white; padding: 1px 8px; border-radius: 2px; font-weight: 700; display: inline-block; line-height: 1.4; margin-top: 2px; }
   .pdf-section { margin-bottom: 8px; }
   .pdf-section-header { display: flex; align-items: center; gap: 5px; border-bottom: 1.5px solid #3a3632; margin-bottom: 5px; padding-bottom: 3px; }
-  .pdf-section-icon { width: 16px; height: 16px; background: #3a3632; color: #b8963e; display: flex; align-items: center; justify-content: center; font-size: 9px; border-radius: 1px; flex-shrink: 0; }
-  .pdf-section-title { font-size: 11px; font-weight: 700; }
-  .pdf-section-weight { margin-left: auto; font-size: 8.5px; color: #8a8480; }
-  .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; font-size: 9px; }
+  .pdf-section-icon { width: 17px; height: 17px; background: #3a3632; color: #b8963e; display: flex; align-items: center; justify-content: center; font-size: 10px; border-radius: 1px; flex-shrink: 0; }
+  .pdf-section-title { font-size: 12px; font-weight: 700; }
+  .pdf-section-weight { margin-left: auto; font-size: 9px; color: #8a8480; }
+  .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; font-size: 10px; }
   .pdf-table thead tr { background: #3a3632; }
   .pdf-table th { padding: 3px 5px; color: #b8963e; font-weight: 400; text-align: left; }
   .pdf-table th.c { text-align: center; }
   .pdf-table td { padding: 3px 5px; border-top: 0.5px solid #d4cfc8; }
   .pdf-table td.c { text-align: center; }
   .pdf-table td.score { text-align: center; color: #b8963e; font-weight: 700; }
-  .pdf-table td.desc { color: #8a8480; }
-  .pdf-comment { background: #f5f0e8; border: 0.5px solid #c8b887; padding: 3px 8px; font-size: 8.5px; color: #3a3632; }
+  .pdf-table td.desc { color: #8a8480; font-size: 9px; }
+  .pdf-comment { background: #f5f0e8; border: 0.5px solid #c8b887; padding: 3px 8px; font-size: 9.5px; color: #3a3632; }
   .pdf-comment-label { color: #8a6a1a; font-weight: 700; }
 </style>
 </head>
@@ -876,10 +876,10 @@ window.exportPDF = () => {
       </div>
       <table class="pdf-table">
         <thead><tr>
-          <th style="width:30%">評価項目</th>
-          <th style="width:40%">説明</th>
-          <th class="c" style="width:18%">評価</th>
-          <th class="c" style="width:12%">点</th>
+          <th style="width:32%">評価項目</th>
+          <th style="width:33%">説明</th>
+          <th class="c" style="width:22%">評価</th>
+          <th class="c" style="width:13%">点</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
