@@ -308,8 +308,13 @@
       </div>
 
       <div id="member-bar" class="member-bar" style="display:none">
-        <span class="member-bar-label">閲覧中：</span>
-        <div id="member-buttons" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        <div style="display:flex; align-items:center; gap:10px; width:100%; flex-wrap:wrap;">
+          <span class="member-bar-label">閲覧中：</span>
+          <select id="member-dept-filter" style="padding:5px 10px; border:1.5px solid var(--theme-border); border-radius:3px; font-size:12px; font-family:'Noto Sans JP',sans-serif; background:white; color:var(--ink); outline:none; cursor:pointer;" onchange="filterMemberButtons()">
+            <option value="">すべての部署</option>
+          </select>
+          <div id="member-buttons" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;"></div>
+        </div>
       </div>
       <div id="editing-notice" class="editing-notice" style="display:none">✏️ <span id="editing-name"></span> の評価を編集中</div>
 
@@ -594,16 +599,54 @@ window.showPage = (page) => {
   document.getElementById('eval-screen').style.display = page === 'eval' ? 'block' : 'none';
   document.getElementById('admin-screen').style.display = page === 'admin' ? 'block' : 'none';
   document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', (i===0&&page==='eval')||(i===1&&page==='admin')));
+  // 管理画面は常に一般社員テーマ
+  if (page === 'admin') document.body.classList.remove('role-manager');
   if (page === 'admin') loadUserList();
 };
 
+// メンバーデータをキャッシュ
+let memberCache = [];
+
 async function loadMemberBar() {
   document.getElementById('member-bar').style.display = 'flex';
+  memberCache = [];
+
+  const usersSnap = await getDocs(collection(db, 'users'));
+  usersSnap.forEach(d => {
+    const u = d.data();
+    if (d.id === currentUser.uid) return;
+    const canView = currentUserData.role === 'admin' ||
+      (MANAGER_ROLES.includes(currentUserData.role) && u.dept === currentUserData.dept && !MANAGER_ROLES.includes(u.role));
+    if (!canView) return;
+    memberCache.push({ id: d.id, ...u });
+  });
+
+  // 部署フィルターを構築
+  const deptFilter = document.getElementById('member-dept-filter');
+  const depts = [...new Set(memberCache.map(u => u.dept).filter(Boolean))].sort();
+  deptFilter.innerHTML = '<option value="">すべての部署</option>';
+  depts.forEach(dept => {
+    const opt = document.createElement('option');
+    opt.value = dept;
+    opt.textContent = dept;
+    deptFilter.appendChild(opt);
+  });
+
+  renderMemberButtons();
+}
+
+window.filterMemberButtons = () => renderMemberButtons();
+
+function renderMemberButtons() {
   const btnContainer = document.getElementById('member-buttons');
   btnContainer.innerHTML = '';
+  const filterDept = document.getElementById('member-dept-filter').value;
+
+  // 自分ボタン
   const selfBtn = document.createElement('button');
   selfBtn.className = 'member-btn active';
   selfBtn.textContent = `自分（${currentUserData.name}）`;
+  selfBtn.dataset.uid = currentUser.uid;
   selfBtn.onclick = async () => {
     document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active'));
     selfBtn.classList.add('active');
@@ -614,22 +657,30 @@ async function loadMemberBar() {
   };
   btnContainer.appendChild(selfBtn);
 
-  const usersSnap = await getDocs(collection(db, 'users'));
-  usersSnap.forEach(d => {
-    const u = d.data();
-    if (d.id === currentUser.uid) return;
-    const canView = currentUserData.role === 'admin' ||
-      (MANAGER_ROLES.includes(currentUserData.role) && u.dept === currentUserData.dept && !MANAGER_ROLES.includes(u.role));
-    if (!canView) return;
+  // 絞り込み後のメンバー
+  const filtered = filterDept
+    ? memberCache.filter(u => u.dept === filterDept)
+    : memberCache;
+
+  // 社員番号順ソート
+  filtered.sort((a, b) => {
+    if (!a.empid && !b.empid) return 0;
+    if (!a.empid) return 1;
+    if (!b.empid) return -1;
+    return a.empid.localeCompare(b.empid, 'ja', { numeric: true });
+  });
+
+  filtered.forEach(u => {
     const btn = document.createElement('button');
     btn.className = 'member-btn';
     btn.textContent = u.name;
+    btn.dataset.uid = u.id;
     btn.onclick = async () => {
       document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      viewingUserId = d.id;
+      viewingUserId = u.id;
       viewingUserName = u.name;
-      await loadData(d.id);
+      await loadData(u.id);
       updateNotice(); updateSummary();
     };
     btnContainer.appendChild(btn);
