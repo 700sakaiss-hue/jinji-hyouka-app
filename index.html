@@ -662,7 +662,7 @@ window.sendResetEmail = async () => {
   }
   try {
     await sendPasswordResetEmail(auth, email);
-    msgEl.textContent = '✅ リセットメールを送信しました！メールをご確認ください。';
+    msgEl.textContent = '✅ リセットメールを送信しました！メールをご確認ください。メールが届かない場合は迷惑メールフォルダをご確認ください。';
     msgEl.style.color = '#2e7d32';
     document.getElementById('reset-email').value = '';
   } catch(e) {
