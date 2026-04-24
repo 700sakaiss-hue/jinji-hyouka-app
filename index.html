@@ -278,6 +278,18 @@
     </div>
     <button class="login-btn" onclick="doLogin()">ログイン</button>
     <div class="login-error" id="login-error"></div>
+    <div style="text-align:center; margin-top:16px;">
+      <span onclick="toggleResetForm()" style="font-size:11px; color:var(--ink-faint); cursor:pointer; text-decoration:underline; text-underline-offset:2px;">パスワードをお忘れの方はこちら</span>
+    </div>
+    <div id="reset-form" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+      <div style="font-size:11px; color:var(--ink-light); margin-bottom:10px;">登録済みのメールアドレスにリセットメールを送ります。</div>
+      <div class="login-field" style="margin-bottom:10px;">
+        <label>メールアドレス</label>
+        <input type="email" id="reset-email" placeholder="your@email.com">
+      </div>
+      <button class="login-btn" onclick="sendResetEmail()" style="background:var(--ink-light);">リセットメールを送る</button>
+      <div id="reset-msg" style="font-size:12px; text-align:center; margin-top:10px; min-height:18px;"></div>
+    </div>
   </div>
 </div>
 
@@ -571,7 +583,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -631,6 +643,37 @@ let scores = {}, currentEvalRole = 'general';
 let currentUser = null, currentUserData = null;
 let viewingUserId = null, viewingUserName = '';
 let empidTimer = null;
+
+// ── パスワードリセット ──
+window.toggleResetForm = () => {
+  const form = document.getElementById('reset-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  document.getElementById('reset-msg').textContent = '';
+};
+
+window.sendResetEmail = async () => {
+  const email = document.getElementById('reset-email').value.trim();
+  const msgEl = document.getElementById('reset-msg');
+  msgEl.textContent = '';
+  if (!email) {
+    msgEl.textContent = 'メールアドレスを入力してください';
+    msgEl.style.color = '#c0392b';
+    return;
+  }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    msgEl.textContent = '✅ リセットメールを送信しました！メールをご確認ください。';
+    msgEl.style.color = '#2e7d32';
+    document.getElementById('reset-email').value = '';
+  } catch(e) {
+    if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-email') {
+      msgEl.textContent = '登録されていないメールアドレスです';
+    } else {
+      msgEl.textContent = 'エラーが発生しました';
+    }
+    msgEl.style.color = '#c0392b';
+  }
+};
 
 window.doLogin = async () => {
   const email = document.getElementById('login-email').value;
