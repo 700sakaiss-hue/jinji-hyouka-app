@@ -374,7 +374,27 @@
         </div>
         <div class="info-cell">
           <div class="info-label">評価期間</div>
-          <input class="info-input" id="eval-period" placeholder="2025年4月〜2026年3月">
+          <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+            <select class="info-input" id="eval-period-start-year" style="width:auto; font-size:13px;"></select>
+            <span style="font-size:12px; color:var(--ink-faint);">年</span>
+            <select class="info-input" id="eval-period-start-month" style="width:auto; font-size:13px;">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+              <option value="4" selected>4</option><option value="5">5</option><option value="6">6</option>
+              <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+              <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            </select>
+            <span style="font-size:12px; color:var(--ink-faint);">月〜</span>
+            <select class="info-input" id="eval-period-end-year" style="width:auto; font-size:13px;"></select>
+            <span style="font-size:12px; color:var(--ink-faint);">年</span>
+            <select class="info-input" id="eval-period-end-month" style="width:auto; font-size:13px;">
+              <option value="1">1</option><option value="2">2</option>
+              <option value="3" selected>3</option><option value="4">4</option>
+              <option value="5">5</option><option value="6">6</option>
+              <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+              <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            </select>
+            <span style="font-size:12px; color:var(--ink-faint);">月</span>
+          </div>
         </div>
         <div class="info-cell">
           <div class="info-label">評価者氏名</div>
@@ -882,7 +902,20 @@ onAuthStateChanged(auth, async (user) => {
 async function initApp() {
   const now = new Date();
   document.getElementById('year-display').textContent = now.getFullYear();
-  document.getElementById('eval-period').placeholder = `${now.getFullYear()-1}年4月〜${now.getFullYear()}年3月`;
+
+  // 年プルダウン初期化（前年〜来年）
+  const years = [];
+  for (let y = now.getFullYear() - 3; y <= now.getFullYear() + 1; y++) years.push(y);
+  ['eval-period-start-year','eval-period-end-year'].forEach((id, i) => {
+    const sel = document.getElementById(id);
+    years.forEach(y => {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      if ((i === 0 && y === now.getFullYear() - 1) || (i === 1 && y === now.getFullYear())) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  });
   document.getElementById('user-badge').textContent = `${currentUserData.name}（${ROLE_LABELS[currentUserData.role] || '一般社員'}）`;
   if (currentUserData.role === 'admin' || currentUserData.role === 'staff') {
     document.getElementById('admin-tab').style.display = 'block';
@@ -1059,6 +1092,24 @@ async function searchByEmpId() {
   });
 }
 
+// 評価期間の取得・セット
+function getEvalPeriod() {
+  const sy = document.getElementById('eval-period-start-year').value;
+  const sm = document.getElementById('eval-period-start-month').value;
+  const ey = document.getElementById('eval-period-end-year').value;
+  const em = document.getElementById('eval-period-end-month').value;
+  return `${sy}年${sm}月〜${ey}年${em}月`;
+}
+function setEvalPeriod(val) {
+  if (!val) return;
+  const m = val.match(/(\d+)年(\d+)月〜(\d+)年(\d+)月/);
+  if (!m) return;
+  document.getElementById('eval-period-start-year').value = m[1];
+  document.getElementById('eval-period-start-month').value = m[2];
+  document.getElementById('eval-period-end-year').value = m[3];
+  document.getElementById('eval-period-end-month').value = m[4];
+}
+
 async function loadData(uid) {
   resetFields();
   const docId = `${uid}_${currentDivision}`;
@@ -1066,8 +1117,9 @@ async function loadData(uid) {
   if (!snap.exists()) return;
   const data = snap.data();
   scores = data.scores || {};
-  const fields = { 'info-dept': data.dept, 'info-name': data.name, 'info-empid': data.empid, 'info-position': data.position, 'eval-period': data.period, 'info-evaluator': data.evaluator };
+  const fields = { 'info-dept': data.dept, 'info-name': data.name, 'info-empid': data.empid, 'info-position': data.position, 'info-evaluator': data.evaluator };
   Object.entries(fields).forEach(([id, val]) => { if (val) document.getElementById(id).value = val; });
+  if (data.period) setEvalPeriod(data.period);
   const comments = data.comments || {};
   ['gyoseki','skill','conduct','mgmt','overall','next'].forEach(k => {
     const el = document.getElementById(`comment-${k}`);
@@ -1090,7 +1142,7 @@ window.saveData = async () => {
     name: document.getElementById('info-name').value,
     empid: document.getElementById('info-empid').value,
     position: document.getElementById('info-position').value,
-    period: document.getElementById('eval-period').value,
+    period: getEvalPeriod(),
     evaluator: document.getElementById('info-evaluator').value,
     division: currentDivision,
     userId: viewingUserId,
@@ -1109,7 +1161,7 @@ window.saveData = async () => {
 
 function resetFields() {
   scores = {};
-  ['info-dept','info-name','info-empid','info-position','eval-period','info-evaluator'].forEach(id => document.getElementById(id).value = '');
+  ['info-dept','info-name','info-empid','info-position','info-evaluator'].forEach(id => document.getElementById(id).value = '');
   ['gyoseki','skill','conduct','mgmt','overall','next'].forEach(k => { const el = document.getElementById(`comment-${k}`); if (el) el.value = ''; });
   document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.score-badge').forEach(b => b.textContent = '—');
@@ -1618,7 +1670,7 @@ window.exportPDF = () => {
   const empid = document.getElementById('info-empid').value || '—';
   const dept = document.getElementById('info-dept').value || '—';
   const position = document.getElementById('info-position').value || '—';
-  const period = document.getElementById('eval-period').value || '—';
+  const period = getEvalPeriod();
   const evaluator = document.getElementById('info-evaluator').value || '—';
   const year = document.getElementById('year-display').textContent;
 
