@@ -974,11 +974,6 @@ async function initApp() {
   await loadData(currentUser.uid);
   updateNotice();
   updateSummary();
-
-  document.getElementById('info-empid').addEventListener('input', () => {
-    clearTimeout(empidTimer);
-    empidTimer = setTimeout(searchByEmpId, 800);
-  });
 }
 
 window.showPage = (page) => {
@@ -1417,6 +1412,12 @@ window.clearFilters = () => {
 };
 
 document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') window.doLogin(); });
+
+// 社員番号自動検索（ページ読み込み時に必ず登録）
+document.getElementById('info-empid').addEventListener('input', () => {
+  clearTimeout(empidTimer);
+  empidTimer = setTimeout(searchByEmpId, 800);
+});
 
 // 登録フォームの部署入力で事業部を自動セット
 document.getElementById('reg-dept').addEventListener('input', () => {
