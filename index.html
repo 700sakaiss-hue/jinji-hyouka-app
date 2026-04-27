@@ -308,7 +308,8 @@
     <div class="header-user">
       <span class="user-badge" id="user-badge"></span>
       <button class="logout-btn" onclick="toggleUserMenu()" id="user-menu-btn">▼ メニュー</button>
-      <div id="user-menu" style="display:none; position:fixed; top:auto; right:20px; background:var(--cream); border:1.5px solid var(--border); border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,0.2); z-index:9999; min-width:160px;">
+      <div id="user-menu" style="display:none; position:fixed; top:auto; right:20px; background:var(--cream); border:1.5px solid var(--border); border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,0.2); z-index:9999; min-width:200px;">
+        <div id="menu-user-name" style="padding:10px 18px; font-size:11px; color:var(--ink-faint); border-bottom:1px solid var(--border); letter-spacing:0.05em;"></div>
         <div onclick="openPasswordModal()" style="padding:12px 18px; font-size:13px; color:var(--ink); cursor:pointer; border-bottom:0.5px solid var(--border); -webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#f0efed'" onmouseout="this.style.background='transparent'">🔑 パスワード変更</div>
         <div onclick="doLogout()" style="padding:12px 18px; font-size:13px; color:#c0392b; cursor:pointer; -webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#fce4ec'" onmouseout="this.style.background='transparent'">ログアウト</div>
       </div>
@@ -788,6 +789,11 @@ window.toggleUserMenu = () => {
   const menu = document.getElementById('user-menu');
   const btn = document.getElementById('user-menu-btn');
   if (menu.style.display === 'none') {
+    // 名前をセット
+    const nameEl = document.getElementById('menu-user-name');
+    if (nameEl && currentUserData) {
+      nameEl.textContent = `${currentUserData.name}（${ROLE_LABELS[currentUserData.role] || '一般社員'}）`;
+    }
     const rect = btn.getBoundingClientRect();
     menu.style.top = (rect.bottom + 6) + 'px';
     menu.style.right = (window.innerWidth - rect.right) + 'px';
