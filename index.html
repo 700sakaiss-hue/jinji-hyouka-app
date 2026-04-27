@@ -51,9 +51,9 @@
   .header-title { font-family: 'Noto Serif JP', serif; color: var(--cream); font-size: 28px; font-weight: 700; letter-spacing: 0.1em; }
   .header-title span { display: block; font-size: 12px; font-weight: 400; color: var(--gold-dim); letter-spacing: 0.3em; margin-bottom: 8px; font-family: 'Noto Sans JP', sans-serif; }
   .header-year { font-family: 'Noto Serif JP', serif; color: var(--gold); font-size: 42px; font-weight: 700; line-height: 1; }
-  .header-user { position: absolute; top: 12px; right: 40px; display: flex; align-items: center; gap: 12px; }
+  .header-user { position: absolute; top: 12px; right: 40px; display: flex; align-items: center; gap: 12px; z-index: 200; }
   .user-badge { font-size: 11px; color: var(--gold-dim); letter-spacing: 0.1em; }
-  .logout-btn { padding: 5px 14px; background: transparent; border: 1px solid rgba(184,150,62,0.4); border-radius: 2px; color: var(--gold-dim); font-size: 11px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s; }
+  .logout-btn { padding: 7px 16px; background: transparent; border: 1px solid rgba(184,150,62,0.4); border-radius: 2px; color: var(--gold-dim); font-size: 12px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   .logout-btn:hover { border-color: var(--gold); color: var(--gold); }
 
   /* ── NAV ── */
@@ -199,7 +199,8 @@
     .info-cell:nth-last-child(-n+3) { border-bottom: 1px solid var(--theme-border); }
     .stars { gap: 2px; } .star-btn { width: 28px; height: 28px; font-size: 13px; }
     .summary-bar { gap: 18px; } .nav-bar-inner { padding: 0 20px; }
-    .header-user { top: 8px; right: 20px; }
+    .header-user { top: 8px; right: 12px; }
+    .user-badge { display: none; }
     .form-grid { grid-template-columns: 1fr; }
     .form-field.full { grid-column: 1; }
   }
@@ -305,9 +306,9 @@
     <div class="header-user">
       <span class="user-badge" id="user-badge"></span>
       <button class="logout-btn" onclick="toggleUserMenu()" id="user-menu-btn">▼ メニュー</button>
-      <div id="user-menu" style="display:none; position:absolute; top:44px; right:40px; background:var(--cream); border:1.5px solid var(--border); border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,0.15); z-index:100; min-width:150px;">
-        <div onclick="openPasswordModal()" style="padding:10px 16px; font-size:12px; color:var(--ink); cursor:pointer; border-bottom:0.5px solid var(--border); transition:background 0.15s;" onmouseover="this.style.background='#f0efed'" onmouseout="this.style.background='transparent'">🔑 パスワード変更</div>
-        <div onclick="doLogout()" style="padding:10px 16px; font-size:12px; color:#c0392b; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='#fce4ec'" onmouseout="this.style.background='transparent'">ログアウト</div>
+      <div id="user-menu" style="display:none; position:fixed; top:auto; right:20px; background:var(--cream); border:1.5px solid var(--border); border-radius:4px; box-shadow:0 4px 16px rgba(0,0,0,0.2); z-index:9999; min-width:160px;">
+        <div onclick="openPasswordModal()" style="padding:12px 18px; font-size:13px; color:var(--ink); cursor:pointer; border-bottom:0.5px solid var(--border); -webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#f0efed'" onmouseout="this.style.background='transparent'">🔑 パスワード変更</div>
+        <div onclick="doLogout()" style="padding:12px 18px; font-size:13px; color:#c0392b; cursor:pointer; -webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#fce4ec'" onmouseout="this.style.background='transparent'">ログアウト</div>
       </div>
     </div>
     <div class="header-inner">
@@ -779,7 +780,15 @@ window.doLogout = () => signOut(auth);
 // ── ユーザーメニュー ──
 window.toggleUserMenu = () => {
   const menu = document.getElementById('user-menu');
-  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  const btn = document.getElementById('user-menu-btn');
+  if (menu.style.display === 'none') {
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 6) + 'px';
+    menu.style.right = (window.innerWidth - rect.right) + 'px';
+    menu.style.display = 'block';
+  } else {
+    menu.style.display = 'none';
+  }
 };
 
 // メニュー外クリックで閉じる
