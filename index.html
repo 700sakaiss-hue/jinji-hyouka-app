@@ -1016,7 +1016,8 @@ async function searchByEmpId() {
 
 async function loadData(uid) {
   resetFields();
-  const snap = await getDoc(doc(db, 'evaluations', uid));
+  const docId = `${uid}_${currentDivision}`;
+  const snap = await getDoc(doc(db, 'evaluations', docId));
   if (!snap.exists()) return;
   const data = snap.data();
   scores = data.scores || {};
@@ -1037,7 +1038,8 @@ async function loadData(uid) {
 }
 
 window.saveData = async () => {
-  await setDoc(doc(db, 'evaluations', viewingUserId), {
+  const docId = `${viewingUserId}_${currentDivision}`;
+  await setDoc(doc(db, 'evaluations', docId), {
     scores,
     dept: document.getElementById('info-dept').value,
     name: document.getElementById('info-name').value,
@@ -1045,6 +1047,8 @@ window.saveData = async () => {
     position: document.getElementById('info-position').value,
     period: document.getElementById('eval-period').value,
     evaluator: document.getElementById('info-evaluator').value,
+    division: currentDivision,
+    userId: viewingUserId,
     comments: {
       gyoseki: document.getElementById('comment-gyoseki').value,
       skill: document.getElementById('comment-skill').value,
@@ -1126,7 +1130,7 @@ function updateSummary() {
   document.getElementById('cat-scores').innerHTML = catData.map(d=>`<div class="summary-item"><div class="summary-label">${catNames[d.cat]}</div><div class="summary-value" style="font-size:20px">${d.avg}</div></div>`).join('');
 }
 
-window.setDivision = (division) => {
+window.setDivision = async (division) => {
   currentDivision = division;
   // タブのアクティブ切り替え
   document.querySelectorAll('.division-tab').forEach((t, i) => {
@@ -1139,9 +1143,8 @@ window.setDivision = (division) => {
   buildTable('tbody-skill',   items.skill,   'skill');
   buildTable('tbody-conduct', items.conduct,  'conduct');
   buildTable('tbody-mgmt',    items.mgmt,     'mgmt');
-  // スコアリセット
-  scores = {};
-  document.querySelectorAll('.score-badge').forEach(b => b.textContent = '—');
+  // 該当事業部のデータを再読み込み（なければフォームをリセット）
+  await loadData(viewingUserId);
   updateSummary();
 };
 
