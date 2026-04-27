@@ -388,10 +388,10 @@
             <span style="font-size:12px; color:var(--ink-faint); white-space:nowrap;">年</span>
             <select class="info-input" id="eval-period-end-month" style="width:auto; font-size:13px; min-width:0;">
               <option value="1">1</option><option value="2">2</option>
-              <option value="3" selected>3</option><option value="4">4</option>
+              <option value="3">3</option><option value="4">4</option>
               <option value="5">5</option><option value="6">6</option>
               <option value="7">7</option><option value="8">8</option><option value="9">9</option>
-              <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+              <option value="10" selected>10</option><option value="11">11</option><option value="12">12</option>
             </select>
             <span style="font-size:12px; color:var(--ink-faint); white-space:nowrap;">月</span>
           </div>
@@ -935,7 +935,7 @@ async function initApp() {
       const opt = document.createElement('option');
       opt.value = y;
       opt.textContent = y;
-      if ((i === 0 && y === now.getFullYear() - 1) || (i === 1 && y === now.getFullYear())) opt.selected = true;
+      if (y === 2026) opt.selected = true;
       sel.appendChild(opt);
     });
   });
