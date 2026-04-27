@@ -653,6 +653,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// 部署から事業部を自動判定
+function getDivisionFromDept(dept) {
+  if (!dept) return 'denki';
+  if (dept.includes('総務')) return 'somu';
+  if (dept.includes('警備')) return 'keibi';
+  return 'denki'; // デフォルトは電気通信
+}
+
 const ROLE_LABELS = {
   general:      '一般社員',
   staff:        '一般社員(社員登録の権限のみ有)',
@@ -1268,7 +1276,7 @@ window.registerUser = async () => {
   const name = document.getElementById('reg-name').value.trim();
   const empid = document.getElementById('reg-empid').value.trim();
   const dept = document.getElementById('reg-dept').value.trim();
-  const division = document.getElementById('reg-division').value;
+  const division = getDivisionFromDept(dept);
   const role = document.getElementById('reg-role').value;
   const msgEl = document.getElementById('reg-msg');
   if (!uid || !name || !dept) {
@@ -1360,7 +1368,7 @@ window.saveEdit = async () => {
   const name = document.getElementById('edit-name').value.trim();
   const empid = document.getElementById('edit-empid').value.trim();
   const dept = document.getElementById('edit-dept').value.trim();
-  const division = document.getElementById('edit-division').value;
+  const division = getDivisionFromDept(dept);
   const role = document.getElementById('edit-role').value;
   const msgEl = document.getElementById('edit-msg');
 
@@ -1394,6 +1402,22 @@ window.clearFilters = () => {
 };
 
 document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') window.doLogin(); });
+
+// 登録フォームの部署入力で事業部を自動セット
+document.getElementById('reg-dept').addEventListener('input', () => {
+  document.getElementById('reg-division').value = getDivisionFromDept(document.getElementById('reg-dept').value);
+});
+document.getElementById('reg-dept').addEventListener('change', () => {
+  document.getElementById('reg-division').value = getDivisionFromDept(document.getElementById('reg-dept').value);
+});
+
+// 編集モーダルの部署入力で事業部を自動セット
+document.getElementById('edit-dept').addEventListener('input', () => {
+  document.getElementById('edit-division').value = getDivisionFromDept(document.getElementById('edit-dept').value);
+});
+document.getElementById('edit-dept').addEventListener('change', () => {
+  document.getElementById('edit-division').value = getDivisionFromDept(document.getElementById('edit-dept').value);
+});
 
 // ── 一括PDF出力 ──
 window.exportBulkPDF = async (type) => {
