@@ -57,6 +57,13 @@
   .logout-btn:hover { border-color: var(--gold); color: var(--gold); }
 
   /* ── NAV ── */
+  /* ── 事業部タブ ── */
+  .division-bar { background: #2a2724; }
+  .division-bar-inner { max-width: 900px; margin: 0 auto; display: flex; padding: 0 40px; }
+  .division-tab { flex: 1; padding: 13px; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); cursor: pointer; border-bottom: 3px solid transparent; border-top: none; border-left: none; border-right: none; background: transparent; font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s; text-align: center; }
+  .division-tab.active { color: var(--gold); border-bottom-color: var(--gold); background: rgba(184,150,62,0.08); }
+  .division-tab:hover:not(.active) { color: rgba(255,255,255,0.7); }
+
   .nav-bar { background: var(--gold); }
   .nav-bar-inner { max-width: 900px; margin: 0 auto; display: flex; padding: 0 40px; }
   .nav-tab { padding: 12px 24px; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: rgba(26,23,20,0.5); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Noto Sans JP', sans-serif; }
@@ -306,6 +313,14 @@
     <div class="header-inner">
       <div><div class="header-title"><span>PERFORMANCE EVALUATION</span>人事考課表</div></div>
       <div class="header-year" id="year-display"></div>
+    </div>
+  </div>
+
+  <div class="division-bar">
+    <div class="division-bar-inner">
+      <button class="division-tab active" onclick="setDivision('denki')">電気通信</button>
+      <button class="division-tab" onclick="setDivision('somu')">総務</button>
+      <button class="division-tab" onclick="setDivision('keibi')">警備</button>
     </div>
   </div>
 
@@ -612,32 +627,90 @@ const ROLE_LABELS = {
 };
 const MANAGER_ROLES = ['manager', 'kachodai_mgr', 'fukubucho', 'jicho', 'admin'];
 
-const ITEMS = {
-  gyoseki: [
-    { name: '目標達成度', desc: '期初に設定した定量・定性目標に対する達成度' },
-    { name: '業務品質', desc: '成果物の正確性・完成度・クオリティの高さ' },
-    { name: '生産性・効率性', desc: '業務スピードと工数対効果のバランス' },
-    { name: '課題解決力', desc: '問題を発見し、自律的に解決へ導く力' },
-  ],
-  skill: [
-    { name: '専門知識・技術', desc: '職務に必要な知識・スキルの習得・活用度' },
-    { name: '企画・提案力', desc: '新しいアイデアや改善提案を行う能力' },
-    { name: '判断力・決断力', desc: '状況を正確に把握し適切な判断を下す力' },
-    { name: '自己啓発', desc: 'スキルアップへの積極的な取り組み姿勢' },
-  ],
-  conduct: [
-    { name: '規律・責任感', desc: 'ルール遵守、約束を守る誠実さと責任感' },
-    { name: 'チームワーク', desc: '協調性、他者への貢献と助け合いの姿勢' },
-    { name: 'コミュニケーション', desc: '報告・連絡・相談、適切な情報共有能力' },
-    { name: '顧客・相手志向', desc: '顧客や関係者のニーズを把握し行動する力' },
-  ],
-  mgmt: [
-    { name: 'チーム目標管理', desc: 'チームの目標設定と進捗管理の的確さ' },
-    { name: '部下育成・指導', desc: 'メンバーの成長を促すコーチングと指導力' },
-    { name: 'リーダーシップ', desc: 'チームを方向付け、メンバーを牽引する力' },
-    { name: '組織貢献・戦略眼', desc: '部門・会社全体を俯瞰した行動と提言' },
-  ],
+// 事業部ごとの評価項目
+const DIVISION_ITEMS = {
+  denki: {
+    gyoseki: [
+      { name: '目標達成度', desc: '期初に設定した定量・定性目標に対する達成度' },
+      { name: '業務品質', desc: '成果物の正確性・完成度・クオリティの高さ' },
+      { name: '生産性・効率性', desc: '業務スピードと工数対効果のバランス' },
+      { name: '課題解決力', desc: '問題を発見し、自律的に解決へ導く力' },
+    ],
+    skill: [
+      { name: '専門知識・技術', desc: '職務に必要な知識・スキルの習得・活用度' },
+      { name: '企画・提案力', desc: '新しいアイデアや改善提案を行う能力' },
+      { name: '判断力・決断力', desc: '状況を正確に把握し適切な判断を下す力' },
+      { name: '自己啓発', desc: 'スキルアップへの積極的な取り組み姿勢' },
+    ],
+    conduct: [
+      { name: '規律・責任感', desc: 'ルール遵守、約束を守る誠実さと責任感' },
+      { name: 'チームワーク', desc: '協調性、他者への貢献と助け合いの姿勢' },
+      { name: 'コミュニケーション', desc: '報告・連絡・相談、適切な情報共有能力' },
+      { name: '顧客・相手志向', desc: '顧客や関係者のニーズを把握し行動する力' },
+    ],
+    mgmt: [
+      { name: 'チーム目標管理', desc: 'チームの目標設定と進捗管理の的確さ' },
+      { name: '部下育成・指導', desc: 'メンバーの成長を促すコーチングと指導力' },
+      { name: 'リーダーシップ', desc: 'チームを方向付け、メンバーを牽引する力' },
+      { name: '組織貢献・戦略眼', desc: '部門・会社全体を俯瞰した行動と提言' },
+    ],
+  },
+  somu: {
+    gyoseki: [
+      { name: '目標達成度', desc: '期初に設定した定量・定性目標に対する達成度' },
+      { name: '業務品質', desc: '成果物の正確性・完成度・クオリティの高さ' },
+      { name: '生産性・効率性', desc: '業務スピードと工数対効果のバランス' },
+      { name: '課題解決力', desc: '問題を発見し、自律的に解決へ導く力' },
+    ],
+    skill: [
+      { name: '専門知識・技術', desc: '職務に必要な知識・スキルの習得・活用度' },
+      { name: '企画・提案力', desc: '新しいアイデアや改善提案を行う能力' },
+      { name: '判断力・決断力', desc: '状況を正確に把握し適切な判断を下す力' },
+      { name: '自己啓発', desc: 'スキルアップへの積極的な取り組み姿勢' },
+    ],
+    conduct: [
+      { name: '規律・責任感', desc: 'ルール遵守、約束を守る誠実さと責任感' },
+      { name: 'チームワーク', desc: '協調性、他者への貢献と助け合いの姿勢' },
+      { name: 'コミュニケーション', desc: '報告・連絡・相談、適切な情報共有能力' },
+      { name: '顧客・相手志向', desc: '顧客や関係者のニーズを把握し行動する力' },
+    ],
+    mgmt: [
+      { name: 'チーム目標管理', desc: 'チームの目標設定と進捗管理の的確さ' },
+      { name: '部下育成・指導', desc: 'メンバーの成長を促すコーチングと指導力' },
+      { name: 'リーダーシップ', desc: 'チームを方向付け、メンバーを牽引する力' },
+      { name: '組織貢献・戦略眼', desc: '部門・会社全体を俯瞰した行動と提言' },
+    ],
+  },
+  keibi: {
+    gyoseki: [
+      { name: '目標達成度', desc: '期初に設定した定量・定性目標に対する達成度' },
+      { name: '業務品質', desc: '成果物の正確性・完成度・クオリティの高さ' },
+      { name: '生産性・効率性', desc: '業務スピードと工数対効果のバランス' },
+      { name: '課題解決力', desc: '問題を発見し、自律的に解決へ導く力' },
+    ],
+    skill: [
+      { name: '専門知識・技術', desc: '職務に必要な知識・スキルの習得・活用度' },
+      { name: '企画・提案力', desc: '新しいアイデアや改善提案を行う能力' },
+      { name: '判断力・決断力', desc: '状況を正確に把握し適切な判断を下す力' },
+      { name: '自己啓発', desc: 'スキルアップへの積極的な取り組み姿勢' },
+    ],
+    conduct: [
+      { name: '規律・責任感', desc: 'ルール遵守、約束を守る誠実さと責任感' },
+      { name: 'チームワーク', desc: '協調性、他者への貢献と助け合いの姿勢' },
+      { name: 'コミュニケーション', desc: '報告・連絡・相談、適切な情報共有能力' },
+      { name: '顧客・相手志向', desc: '顧客や関係者のニーズを把握し行動する力' },
+    ],
+    mgmt: [
+      { name: 'チーム目標管理', desc: 'チームの目標設定と進捗管理の的確さ' },
+      { name: '部下育成・指導', desc: 'メンバーの成長を促すコーチングと指導力' },
+      { name: 'リーダーシップ', desc: 'チームを方向付け、メンバーを牽引する力' },
+      { name: '組織貢献・戦略眼', desc: '部門・会社全体を俯瞰した行動と提言' },
+    ],
+  },
 };
+
+const ITEMS = DIVISION_ITEMS.denki;
+let currentDivision = 'denki';
 
 let scores = {}, currentEvalRole = 'general';
 let currentUser = null, currentUserData = null;
@@ -1052,6 +1125,25 @@ function updateSummary() {
   const catNames = {gyoseki:'業績',skill:'能力',conduct:'行動',mgmt:'管理'};
   document.getElementById('cat-scores').innerHTML = catData.map(d=>`<div class="summary-item"><div class="summary-label">${catNames[d.cat]}</div><div class="summary-value" style="font-size:20px">${d.avg}</div></div>`).join('');
 }
+
+window.setDivision = (division) => {
+  currentDivision = division;
+  // タブのアクティブ切り替え
+  document.querySelectorAll('.division-tab').forEach((t, i) => {
+    const divs = ['denki', 'somu', 'keibi'];
+    t.classList.toggle('active', divs[i] === division);
+  });
+  // テーブルを再構築
+  const items = DIVISION_ITEMS[division];
+  buildTable('tbody-gyoseki', items.gyoseki, 'gyoseki');
+  buildTable('tbody-skill',   items.skill,   'skill');
+  buildTable('tbody-conduct', items.conduct,  'conduct');
+  buildTable('tbody-mgmt',    items.mgmt,     'mgmt');
+  // スコアリセット
+  scores = {};
+  document.querySelectorAll('.score-badge').forEach(b => b.textContent = '—');
+  updateSummary();
+};
 
 window.setEvalRole = (role) => {
   currentEvalRole = role;
