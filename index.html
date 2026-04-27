@@ -1143,8 +1143,10 @@ window.setDivision = async (division) => {
   buildTable('tbody-skill',   items.skill,   'skill');
   buildTable('tbody-conduct', items.conduct,  'conduct');
   buildTable('tbody-mgmt',    items.mgmt,     'mgmt');
-  // 該当事業部のデータを再読み込み（なければフォームをリセット）
+  // 現在閲覧中のユーザーのデータを再読み込み
   await loadData(viewingUserId);
+  // メンバーボタンのアクティブ状態を維持しつつ再描画
+  renderMemberButtons();
   updateSummary();
 };
 
