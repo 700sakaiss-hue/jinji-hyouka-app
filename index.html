@@ -985,11 +985,16 @@ function renderMemberButtons() {
   };
   btnContainer.appendChild(selfBtn);
 
-  // タブと部署で絞り込み
+  // タブ・事業部・部署で絞り込み
   let filtered = memberCache.filter(u => {
     const isGeneral = GENERAL_ROLES.includes(u.role) || !u.role;
     if (memberTabMode === 'general' && !isGeneral) return false;
     if (memberTabMode === 'manager' && isGeneral) return false;
+    // 管理者は事業部タブで絞り込む
+    if (currentUserData.role === 'admin') {
+      const uDiv = u.division || 'denki';
+      if (uDiv !== currentDivision) return false;
+    }
     if (filterDept && u.dept !== filterDept) return false;
     return true;
   });
