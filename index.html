@@ -457,6 +457,14 @@
               <input type="text" id="reg-dept" placeholder="電気通信(本社)" list="dept-list">
             </div>
             <div class="form-field">
+              <label>事業部</label>
+              <select id="reg-division">
+                <option value="denki">電気通信</option>
+                <option value="somu">総務</option>
+                <option value="keibi">警備</option>
+              </select>
+            </div>
+            <div class="form-field">
               <label>役職種別（閲覧・編集権限）</label>
               <select id="reg-role">
                 <option value="general">一般社員</option>
@@ -572,6 +580,14 @@
       <div class="form-field">
         <label>部署</label>
         <input type="text" id="edit-dept" list="dept-list">
+      </div>
+      <div class="form-field">
+        <label>事業部</label>
+        <select id="edit-division">
+          <option value="denki">電気通信</option>
+          <option value="somu">総務</option>
+          <option value="keibi">警備</option>
+        </select>
       </div>
       <div class="form-field">
         <label>役職種別</label>
@@ -859,6 +875,19 @@ async function initApp() {
   buildTable('tbody-mgmt', ITEMS.mgmt, 'mgmt');
 
   if (MANAGER_ROLES.includes(currentUserData.role)) await loadMemberBar();
+
+  // 自分のdivisionに合わせてタブを切り替え
+  const myDivision = currentUserData.division || 'denki';
+  currentDivision = myDivision;
+  document.querySelectorAll('.division-tab').forEach((t, i) => {
+    const divs = ['denki', 'somu', 'keibi'];
+    t.classList.toggle('active', divs[i] === myDivision);
+  });
+  const items = DIVISION_ITEMS[myDivision];
+  buildTable('tbody-gyoseki', items.gyoseki, 'gyoseki');
+  buildTable('tbody-skill',   items.skill,   'skill');
+  buildTable('tbody-conduct', items.conduct,  'conduct');
+  buildTable('tbody-mgmt',    items.mgmt,     'mgmt');
 
   viewingUserId = currentUser.uid;
   viewingUserName = currentUserData.name;
@@ -1172,6 +1201,7 @@ window.registerUser = async () => {
   const name = document.getElementById('reg-name').value.trim();
   const empid = document.getElementById('reg-empid').value.trim();
   const dept = document.getElementById('reg-dept').value.trim();
+  const division = document.getElementById('reg-division').value;
   const role = document.getElementById('reg-role').value;
   const msgEl = document.getElementById('reg-msg');
   if (!uid || !name || !dept) {
@@ -1180,7 +1210,7 @@ window.registerUser = async () => {
     return;
   }
   try {
-    await setDoc(doc(db, 'users', uid), { name, empid, dept, role });
+    await setDoc(doc(db, 'users', uid), { name, empid, dept, division, role });
     msgEl.textContent = `✅ ${name} さんを登録しました！`;
     msgEl.className = 'form-msg success';
     document.getElementById('reg-uid').value = '';
@@ -1226,7 +1256,7 @@ async function loadUserList() {
       <td>${u.dept || '—'}</td>
       <td><span class="role-badge ${roleClass}">${ROLE_LABELS[u.role] || '一般社員'}</span></td>
       <td style="display:flex; gap:6px;">
-        <button class="delete-btn" style="border-color:#b0c0d8; color:#1a4a8a;" onclick="openEditModal('${u.id}','${u.name}','${u.empid||''}','${u.dept||''}','${u.role||'general'}')">編集</button>
+        <button class="delete-btn" style="border-color:#b0c0d8; color:#1a4a8a;" onclick="openEditModal('${u.id}','${u.name}','${u.empid||''}','${u.dept||''}','${u.division||'denki'}','${u.role||'general'}')">編集</button>
         ${u.id !== currentUser.uid ? `<button class="delete-btn" onclick="deleteUser('${u.id}','${u.name}')">削除</button>` : '<span style="font-size:11px;color:var(--ink-faint);">自分</span>'}
       </td>
     `;
@@ -1243,11 +1273,12 @@ window.deleteUser = async (uid, name) => {
   if (MANAGER_ROLES.includes(currentUserData.role)) await loadMemberBar();
 };
 
-window.openEditModal = (uid, name, empid, dept, role) => {
+window.openEditModal = (uid, name, empid, dept, division, role) => {
   document.getElementById('edit-uid').value = uid;
   document.getElementById('edit-name').value = name;
   document.getElementById('edit-empid').value = empid;
   document.getElementById('edit-dept').value = dept;
+  document.getElementById('edit-division').value = division || 'denki';
   document.getElementById('edit-role').value = role;
   document.getElementById('edit-msg').textContent = '';
   document.getElementById('edit-modal').style.display = 'flex';
@@ -1262,6 +1293,7 @@ window.saveEdit = async () => {
   const name = document.getElementById('edit-name').value.trim();
   const empid = document.getElementById('edit-empid').value.trim();
   const dept = document.getElementById('edit-dept').value.trim();
+  const division = document.getElementById('edit-division').value;
   const role = document.getElementById('edit-role').value;
   const msgEl = document.getElementById('edit-msg');
 
@@ -1271,7 +1303,7 @@ window.saveEdit = async () => {
     return;
   }
   try {
-    await setDoc(doc(db, 'users', uid), { name, empid, dept, role });
+    await setDoc(doc(db, 'users', uid), { name, empid, dept, division, role });
     msgEl.textContent = `✅ ${name} さんの情報を更新しました！`;
     msgEl.style.color = '#2e7d32';
     await loadUserList();
