@@ -346,10 +346,6 @@
         <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <span class="member-bar-label">閲覧中：</span>
-            <div style="display:flex; border:1.5px solid var(--theme-border); border-radius:3px; overflow:hidden;">
-              <button id="member-tab-general" style="padding:5px 14px; font-size:12px; font-weight:700; font-family:'Noto Sans JP',sans-serif; border:none; cursor:pointer; transition:all 0.2s; background:var(--theme-accent); color:white;" onclick="switchMemberTab('general')">一般社員</button>
-              <button id="member-tab-manager" style="padding:5px 14px; font-size:12px; font-weight:700; font-family:'Noto Sans JP',sans-serif; border:none; cursor:pointer; transition:all 0.2s; background:white; color:var(--ink-faint); border-left:1.5px solid var(--theme-border);" onclick="switchMemberTab('manager')">管理職</button>
-            </div>
             <select id="member-dept-filter" style="padding:5px 10px; border:1.5px solid var(--theme-border); border-radius:3px; font-size:12px; font-family:'Noto Sans JP',sans-serif; background:white; color:var(--ink); outline:none; cursor:pointer;" onchange="filterMemberButtons()">
               <option value="">すべての部署</option>
             </select>
@@ -972,19 +968,6 @@ async function loadMemberBar() {
 
 window.switchMemberTab = (mode) => {
   memberTabMode = mode;
-  const genBtn = document.getElementById('member-tab-general');
-  const mgrBtn = document.getElementById('member-tab-manager');
-  if (mode === 'general') {
-    genBtn.style.background = 'var(--theme-accent)';
-    genBtn.style.color = 'white';
-    mgrBtn.style.background = 'white';
-    mgrBtn.style.color = 'var(--ink-faint)';
-  } else {
-    mgrBtn.style.background = 'var(--theme-accent)';
-    mgrBtn.style.color = 'white';
-    genBtn.style.background = 'white';
-    genBtn.style.color = 'var(--ink-faint)';
-  }
   renderMemberButtons();
 };
 
@@ -1217,10 +1200,9 @@ window.setEvalRole = (role) => {
   document.body.classList.toggle('role-manager', role === 'manager');
   document.querySelectorAll('.role-switch-btn').forEach((t,i) => t.classList.toggle('active', (i===0&&role==='general')||(i===1&&role==='manager')));
   document.getElementById('section-mgmt').style.display = role==='manager'?'block':'none';
-  // 閲覧中タブも連動
-  if (document.getElementById('member-tab-general')) {
-    switchMemberTab(role === 'manager' ? 'manager' : 'general');
-  }
+  // 閲覧中メンバーも連動して切り替え
+  memberTabMode = role === 'manager' ? 'manager' : 'general';
+  renderMemberButtons();
   updateSummary();
 };
 
