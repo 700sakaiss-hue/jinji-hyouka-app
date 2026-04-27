@@ -690,7 +690,18 @@ const ROLE_LABELS = {
 };
 const MANAGER_ROLES = ['manager', 'kachodai_mgr', 'fukubucho', 'jicho', 'admin'];
 
-// 事業部ごとの評価項目
+const ROLE_LABELS_SHORT = {
+  general:      '一般社員',
+  staff:        '一般社員',
+  kakaricho:    '係長',
+  shunin:       '主任',
+  kachodai:     '課長代理',
+  kachodai_mgr: '課長代理',
+  fukubucho:    '副部長',
+  jicho:        '次長',
+  manager:      '課長',
+  admin:        '管理者',
+};
 const DIVISION_ITEMS = {
   denki: {
     gyoseki: [
@@ -1537,7 +1548,7 @@ window.exportBulkPDF = async (type, division) => {
       <td style="padding:3px 5px;">${u.empid||'—'}</td>
       <td style="padding:3px 5px; font-weight:700;">${u.name}</td>
       <td style="padding:3px 5px; color:#4a4642;">${u.dept||'—'}</td>
-      <td style="padding:3px 5px;">${ROLE_LABELS[u.role]||'—'}</td>
+      <td style="padding:3px 5px;">${ROLE_LABELS_SHORT[u.role]||'—'}</td>
       <td style="padding:3px 5px; text-align:center; color:#b8963e; font-weight:700;">${sum.total}</td>
       <td style="padding:3px 5px; text-align:center; color:#b8963e;">${sum.avg}</td>
       <td style="padding:3px 5px; text-align:center;">${rankBadge}</td>
@@ -1669,7 +1680,7 @@ window.exportBulkPDF = async (type, division) => {
         <div class="pdf-info-row">
           <div class="pdf-info-cell" style="flex:0.9"><div class="pdf-info-label">社員番号</div><div class="pdf-info-val">${u.empid||'—'}</div></div>
           <div class="pdf-info-cell" style="flex:1.2"><div class="pdf-info-label">氏名</div><div class="pdf-info-val">${u.name}</div></div>
-          <div class="pdf-info-cell" style="flex:0.9"><div class="pdf-info-label">役職</div><div class="pdf-info-val">${ROLE_LABELS[u.role]||'—'}</div></div>
+          <div class="pdf-info-cell" style="flex:0.9"><div class="pdf-info-label">役職</div><div class="pdf-info-val">${ROLE_LABELS_SHORT[u.role]||'—'}</div></div>
           <div class="pdf-info-cell" style="flex:1.2"><div class="pdf-info-label">評価者</div><div class="pdf-info-val">${ev?.evaluator||'—'}</div></div>
         </div>
         <div class="pdf-info-row">
