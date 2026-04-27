@@ -452,10 +452,25 @@
     <div class="main">
       <div class="admin-section" id="pdf-export-section">
         <div class="admin-section-title">📄 PDF一括出力</div>
-        <div style="background:var(--cream); border:1.5px solid var(--border); border-radius:4px; padding:20px 24px; display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
-          <div style="font-size:12px; color:var(--ink-light); flex:1; min-width:200px;">登録済み社員の評価データをまとめてPDF出力します。<br>1ページ目に一覧表、以降に各社員の評価シートが続きます。</div>
-          <button class="btn btn-primary" onclick="exportBulkPDF('general')" style="white-space:nowrap;">📄 一般社員PDF出力</button>
-          <button class="btn btn-pdf" onclick="exportBulkPDF('manager')" style="white-space:nowrap;">📄 管理職PDF出力</button>
+        <div style="background:var(--cream); border:1.5px solid var(--border); border-radius:4px; padding:20px 24px;">
+          <div style="font-size:12px; color:var(--ink-light); margin-bottom:16px;">事業部・区分を選んでPDF出力してください。1ページ目に一覧表、以降に各社員の評価シートが続きます。</div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <div style="font-size:12px; font-weight:700; color:var(--ink); min-width:80px;">電気通信</div>
+              <button class="btn btn-primary" onclick="exportBulkPDF('general','denki')" style="white-space:nowrap; font-size:12px; padding:8px 18px;">一般社員</button>
+              <button class="btn btn-pdf" onclick="exportBulkPDF('manager','denki')" style="white-space:nowrap; font-size:12px; padding:8px 18px;">管理職</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <div style="font-size:12px; font-weight:700; color:var(--ink); min-width:80px;">総務</div>
+              <button class="btn btn-primary" onclick="exportBulkPDF('general','somu')" style="white-space:nowrap; font-size:12px; padding:8px 18px;">一般社員</button>
+              <button class="btn btn-pdf" onclick="exportBulkPDF('manager','somu')" style="white-space:nowrap; font-size:12px; padding:8px 18px;">管理職</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <div style="font-size:12px; font-weight:700; color:var(--ink); min-width:80px;">警備</div>
+              <button class="btn btn-primary" onclick="exportBulkPDF('general','keibi')" style="white-space:nowrap; font-size:12px; padding:8px 18px;">一般社員</button>
+              <button class="btn btn-pdf" onclick="exportBulkPDF('manager','keibi')" style="white-space:nowrap; font-size:12px; padding:8px 18px;">管理職</button>
+            </div>
+          </div>
         </div>
       </div>
         <div class="register-form">
@@ -1420,15 +1435,18 @@ document.getElementById('edit-dept').addEventListener('change', () => {
 });
 
 // ── 一括PDF出力 ──
-window.exportBulkPDF = async (type) => {
+window.exportBulkPDF = async (type, division) => {
   const label = type === 'general' ? '一般社員' : '管理職';
+  const divLabel = { denki: '電気通信', somu: '総務', keibi: '警備' }[division] || '';
   const isGeneral = type === 'general';
 
-  // 対象ユーザーを取得
+  // 対象ユーザーを取得（事業部でフィルター）
   const usersSnap = await getDocs(collection(db, 'users'));
   let users = [];
   usersSnap.forEach(d => {
     const u = d.data();
+    const uDiv = u.division || getDivisionFromDept(u.dept || '');
+    if (uDiv !== division) return;
     const isGeneralRole = GENERAL_ROLES.includes(u.role) || !u.role;
     if (isGeneral && isGeneralRole) users.push({ id: d.id, ...u });
     if (!isGeneral && !isGeneralRole) users.push({ id: d.id, ...u });
@@ -1443,14 +1461,15 @@ window.exportBulkPDF = async (type) => {
   });
 
   if (users.length === 0) {
-    alert(`${label}の登録データがありません`);
+    alert(`${divLabel}の${label}の登録データがありません`);
     return;
   }
 
-  // 各社員の評価データを取得
+  // 各社員の評価データを取得（事業部別docId）
   const evalData = {};
   await Promise.all(users.map(async u => {
-    const snap = await getDoc(doc(db, 'evaluations', u.id));
+    const docId = `${u.id}_${division}`;
+    const snap = await getDoc(doc(db, 'evaluations', docId));
     evalData[u.id] = snap.exists() ? snap.data() : null;
   }));
 
@@ -1533,7 +1552,7 @@ window.exportBulkPDF = async (type) => {
     <div class="pdf-header">
       <div>
         <div class="pdf-header-sub">PERFORMANCE EVALUATION</div>
-        <div class="pdf-header-title">人事考課表　${label}一覧</div>
+        <div class="pdf-header-title">人事考課表　${divLabel}${label}一覧</div>
       </div>
       <div class="pdf-header-year">${year}</div>
     </div>
