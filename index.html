@@ -1065,20 +1065,23 @@ function renderMemberButtons() {
   btnContainer.innerHTML = '';
   const filterDept = document.getElementById('member-dept-filter').value;
 
-  // 自分ボタン（常に表示）
-  const selfBtn = document.createElement('button');
-  selfBtn.className = 'member-btn active';
-  selfBtn.textContent = `自分（${currentUserData.name}）`;
-  selfBtn.dataset.uid = currentUser.uid;
-  selfBtn.onclick = async () => {
-    document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active'));
-    selfBtn.classList.add('active');
-    viewingUserId = currentUser.uid;
-    viewingUserName = currentUserData.name;
-    await loadData(currentUser.uid);
-    updateNotice(); updateSummary();
-  };
-  btnContainer.appendChild(selfBtn);
+  // 自分ボタン：管理職タブの時だけ表示
+  const selfIsManager = !GENERAL_ROLES.includes(currentUserData.role);
+  if ((memberTabMode === 'manager' && selfIsManager) || (memberTabMode === 'general' && !selfIsManager)) {
+    const selfBtn = document.createElement('button');
+    selfBtn.className = 'member-btn active';
+    selfBtn.textContent = `自分（${currentUserData.name}）`;
+    selfBtn.dataset.uid = currentUser.uid;
+    selfBtn.onclick = async () => {
+      document.querySelectorAll('.member-btn').forEach(b => b.classList.remove('active'));
+      selfBtn.classList.add('active');
+      viewingUserId = currentUser.uid;
+      viewingUserName = currentUserData.name;
+      await loadData(currentUser.uid);
+      updateNotice(); updateSummary();
+    };
+    btnContainer.appendChild(selfBtn);
+  }
 
   // タブ・事業部・部署で絞り込み
   let filtered = memberCache.filter(u => {
