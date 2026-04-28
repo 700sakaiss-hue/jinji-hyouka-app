@@ -514,6 +514,7 @@
                 <option value="general">一般社員</option>
                 <option value="staff">一般社員(社員登録の権限のみ有)</option>
                 <option value="kakaricho">係長</option>
+                <option value="kakaricho_mgr">係長(社員登録＋同部署閲覧・編集可)</option>
                 <option value="shunin">主任</option>
                 <option value="kachodai">課長代理</option>
                 <option value="kachodai_mgr">課長代理（閲覧権限あり）</option>
@@ -566,6 +567,7 @@
               <option value="general">一般社員</option>
               <option value="staff">一般社員(社員登録の権限のみ有)</option>
               <option value="kakaricho">係長</option>
+              <option value="kakaricho_mgr">係長(社員登録＋同部署閲覧・編集可)</option>
               <option value="shunin">主任</option>
               <option value="kachodai">課長代理</option>
               <option value="kachodai_mgr">課長代理（閲覧権限あり）</option>
@@ -646,6 +648,7 @@
           <option value="general">一般社員</option>
           <option value="staff">一般社員(社員登録の権限のみ有)</option>
           <option value="kakaricho">係長</option>
+          <option value="kakaricho_mgr">係長(社員登録＋同部署閲覧・編集可)</option>
           <option value="shunin">主任</option>
           <option value="kachodai">課長代理</option>
           <option value="kachodai_mgr">課長代理（閲覧権限あり）</option>
@@ -691,23 +694,25 @@ function getDivisionFromDept(dept) {
 }
 
 const ROLE_LABELS = {
-  general:      '一般社員',
-  staff:        '一般社員(社員登録の権限のみ有)',
-  kakaricho:    '係長',
-  shunin:       '主任',
-  kachodai:     '課長代理',
-  kachodai_mgr: '課長代理（閲覧権限あり）',
-  fukubucho:    '副部長',
-  jicho:        '次長',
-  manager:      '課長',
-  admin:        '管理者',
+  general:        '一般社員',
+  staff:          '一般社員(社員登録の権限のみ有)',
+  kakaricho:      '係長',
+  kakaricho_mgr:  '係長(社員登録＋同部署閲覧・編集可)',
+  shunin:         '主任',
+  kachodai:       '課長代理',
+  kachodai_mgr:   '課長代理（閲覧権限あり）',
+  fukubucho:      '副部長',
+  jicho:          '次長',
+  manager:        '課長',
+  admin:          '管理者',
 };
-const MANAGER_ROLES = ['manager', 'kachodai_mgr', 'fukubucho', 'jicho', 'admin'];
+const MANAGER_ROLES = ['manager', 'kachodai_mgr', 'kakaricho_mgr', 'fukubucho', 'jicho', 'admin'];
 
 const ROLE_LABELS_SHORT = {
-  general:      '一般社員',
-  staff:        '一般社員',
-  kakaricho:    '係長',
+  general:        '一般社員',
+  staff:          '一般社員',
+  kakaricho:      '係長',
+  kakaricho_mgr:  '係長',
   shunin:       '主任',
   kachodai:     '課長代理',
   kachodai_mgr: '課長代理',
@@ -965,11 +970,11 @@ async function initApp() {
     });
   });
   document.getElementById('user-badge').textContent = `${currentUserData.name}（${ROLE_LABELS[currentUserData.role] || '一般社員'}）`;
-  if (currentUserData.role === 'admin' || currentUserData.role === 'staff') {
+  if (['admin', 'staff', 'kakaricho_mgr'].includes(currentUserData.role)) {
     document.getElementById('admin-tab').style.display = 'block';
   }
-  // staffはPDF出力を非表示
-  if (currentUserData.role === 'staff') {
+  // staffとkakaricho_mgrはPDF出力を非表示
+  if (['staff', 'kakaricho_mgr'].includes(currentUserData.role)) {
     const pdfSection = document.getElementById('pdf-export-section');
     if (pdfSection) pdfSection.style.display = 'none';
   }
