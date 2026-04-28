@@ -1000,6 +1000,12 @@ async function initApp() {
 
   viewingUserId = currentUser.uid;
   viewingUserName = currentUserData.name;
+
+  // 係長以上は管理職タブをデフォルトに
+  if (!GENERAL_ROLES.includes(currentUserData.role)) {
+    setEvalRole('manager');
+  }
+
   await loadData(currentUser.uid);
   updateNotice();
   updateSummary();
