@@ -514,7 +514,7 @@
                 <option value="general">一般社員</option>
                 <option value="staff">一般社員(社員登録の権限のみ有)</option>
                 <option value="kakaricho">係長</option>
-                <option value="kakaricho_mgr">係長(社員登録＋同部署閲覧・編集可)</option>
+                <option value="kakaricho_mgr">係長(管理者と同じ権限)</option>
                 <option value="shunin">主任</option>
                 <option value="kachodai">課長代理</option>
                 <option value="kachodai_mgr">課長代理（閲覧権限あり）</option>
@@ -567,7 +567,7 @@
               <option value="general">一般社員</option>
               <option value="staff">一般社員(社員登録の権限のみ有)</option>
               <option value="kakaricho">係長</option>
-              <option value="kakaricho_mgr">係長(社員登録＋同部署閲覧・編集可)</option>
+              <option value="kakaricho_mgr">係長(管理者と同じ権限)</option>
               <option value="shunin">主任</option>
               <option value="kachodai">課長代理</option>
               <option value="kachodai_mgr">課長代理（閲覧権限あり）</option>
@@ -648,7 +648,7 @@
           <option value="general">一般社員</option>
           <option value="staff">一般社員(社員登録の権限のみ有)</option>
           <option value="kakaricho">係長</option>
-          <option value="kakaricho_mgr">係長(社員登録＋同部署閲覧・編集可)</option>
+          <option value="kakaricho_mgr">係長(管理者と同じ権限)</option>
           <option value="shunin">主任</option>
           <option value="kachodai">課長代理</option>
           <option value="kachodai_mgr">課長代理（閲覧権限あり）</option>
@@ -697,7 +697,7 @@ const ROLE_LABELS = {
   general:        '一般社員',
   staff:          '一般社員(社員登録の権限のみ有)',
   kakaricho:      '係長',
-  kakaricho_mgr:  '係長(社員登録＋同部署閲覧・編集可)',
+  kakaricho_mgr:  '係長(管理者と同じ権限)',
   shunin:         '主任',
   kachodai:       '課長代理',
   kachodai_mgr:   '課長代理（閲覧権限あり）',
@@ -706,7 +706,7 @@ const ROLE_LABELS = {
   manager:        '課長',
   admin:          '管理者',
 };
-const MANAGER_ROLES = ['manager', 'kachodai_mgr', 'kakaricho_mgr', 'fukubucho', 'jicho', 'admin'];
+const MANAGER_ROLES = ['manager', 'kachodai_mgr', 'fukubucho', 'jicho', 'admin'];
 
 const ROLE_LABELS_SHORT = {
   general:        '一般社員',
@@ -973,8 +973,8 @@ async function initApp() {
   if (['admin', 'staff', 'kakaricho_mgr'].includes(currentUserData.role)) {
     document.getElementById('admin-tab').style.display = 'block';
   }
-  // staffとkakaricho_mgrはPDF出力を非表示
-  if (['staff', 'kakaricho_mgr'].includes(currentUserData.role)) {
+  // staffとkakaricho以外はPDF出力を表示（kakaricho_mgrは管理者と同じなので表示）
+  if (['staff'].includes(currentUserData.role)) {
     const pdfSection = document.getElementById('pdf-export-section');
     if (pdfSection) pdfSection.style.display = 'none';
   }
@@ -1027,7 +1027,8 @@ async function loadMemberBar() {
   usersSnap.forEach(d => {
     const u = d.data();
     if (d.id === currentUser.uid) return;
-    const canView = currentUserData.role === 'admin' ||
+    const isAdmin = ['admin', 'kakaricho_mgr'].includes(currentUserData.role);
+    const canView = isAdmin ||
       (MANAGER_ROLES.includes(currentUserData.role) && u.dept === currentUserData.dept && !MANAGER_ROLES.includes(u.role));
     if (!canView) return;
     memberCache.push({ id: d.id, ...u });
@@ -1083,7 +1084,7 @@ function renderMemberButtons() {
     if (memberTabMode === 'general' && !isGeneral) return false;
     if (memberTabMode === 'manager' && isGeneral) return false;
     // 管理者は事業部タブで絞り込む
-    if (currentUserData.role === 'admin') {
+    if (['admin', 'kakaricho_mgr'].includes(currentUserData.role)) {
       const uDiv = u.division || 'denki';
       if (uDiv !== currentDivision) return false;
     }
@@ -1363,7 +1364,7 @@ async function loadUserList() {
   });
 
   users.forEach(u => {
-    const roleClass = MANAGER_ROLES.includes(u.role) && u.role !== 'admin' ? 'role-manager' : u.role === 'admin' ? 'role-admin' : 'role-general';
+    const roleClass = MANAGER_ROLES.includes(u.role) && u.role !== 'admin' ? 'role-manager' : (u.role === 'admin' || u.role === 'kakaricho_mgr') ? 'role-admin' : 'role-general';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${u.empid || '—'}</td>
