@@ -656,6 +656,11 @@
         </select>
       </div>
     </div>
+    <div class="form-field" style="margin-bottom:16px;">
+      <label>追加閲覧可能部署（複数部署を閲覧する場合に設定）</label>
+      <div id="edit-viewable-depts" style="background:white; border:1.5px solid var(--border); border-radius:4px; padding:10px 12px; max-height:160px; overflow-y:auto; display:flex; flex-wrap:wrap; gap:8px;"></div>
+      <div style="font-size:11px; color:var(--ink-faint); margin-top:4px;">※ 自分の部署以外に閲覧させたい部署にチェックを入れてください</div>
+    </div>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
       <button class="btn btn-ghost" onclick="closeEditModal()">キャンセル</button>
       <button class="btn btn-primary" onclick="saveEdit()">💾 保存</button>
@@ -1021,8 +1026,12 @@ async function loadMemberBar() {
   usersSnap.forEach(d => {
     const u = d.data();
     if (d.id === currentUser.uid) return;
+    const myViewableDepts = currentUserData.viewableDepts || [];
     const canView = currentUserData.role === 'admin' ||
-      (MANAGER_ROLES.includes(currentUserData.role) && u.dept === currentUserData.dept && !MANAGER_ROLES.includes(u.role));
+      (MANAGER_ROLES.includes(currentUserData.role) && (
+        u.dept === currentUserData.dept ||
+        myViewableDepts.includes(u.dept)
+      ) && !MANAGER_ROLES.includes(u.role));
     if (!canView) return;
     memberCache.push({ id: d.id, ...u });
   });
@@ -1390,8 +1399,45 @@ window.openEditModal = (uid, name, empid, dept, division, role) => {
   document.getElementById('edit-division').value = division || 'denki';
   document.getElementById('edit-role').value = role;
   document.getElementById('edit-msg').textContent = '';
+
+  // 閲覧可能部署チェックボックスを構築
+  buildViewableDeptsCheckboxes(dept);
+
+  // 既存のviewableDeptsを読み込む
+  getDoc(doc(db, 'users', uid)).then(snap => {
+    const viewableDepts = snap.exists() ? (snap.data().viewableDepts || []) : [];
+    document.querySelectorAll('#edit-viewable-depts input[type=checkbox]').forEach(cb => {
+      cb.checked = viewableDepts.includes(cb.value);
+    });
+  });
+
   document.getElementById('edit-modal').style.display = 'flex';
 };
+
+// 全部署リスト
+const ALL_DEPTS = [
+  '電気通信(コムシス平林)','電気通信(コムシス東淀川)','電気通信(鴻池)','電気通信(鳥飼)',
+  '電気通信(横浜)','電気通信(泉北)','電気通信(ラピス神戸)','電気通信(東京)','電気通信(滋賀)',
+  '電気通信(松原施工)','電気通信(本社)','電気通信(本社工事部)','電気通信(淀屋橋)',
+  '電気通信(コムシス施工)','電気通信(河内)','電気通信(大阪技術)','電気通信(松原)',
+  '総務','警備(本社)','警備(東京営業所)','警備(南大阪)','施設警備',
+];
+
+function buildViewableDeptsCheckboxes(currentDept) {
+  const container = document.getElementById('edit-viewable-depts');
+  container.innerHTML = '';
+  ALL_DEPTS.forEach(dept => {
+    if (dept === currentDept) return; // 自分の部署は除外
+    const label = document.createElement('label');
+    label.style.cssText = 'display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:3px; white-space:nowrap;';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.value = dept;
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(dept));
+    container.appendChild(label);
+  });
+}
 
 window.closeEditModal = () => {
   document.getElementById('edit-modal').style.display = 'none';
@@ -1406,13 +1452,18 @@ window.saveEdit = async () => {
   const role = document.getElementById('edit-role').value;
   const msgEl = document.getElementById('edit-msg');
 
+  // 閲覧可能部署を取得
+  const viewableDepts = Array.from(
+    document.querySelectorAll('#edit-viewable-depts input[type=checkbox]:checked')
+  ).map(cb => cb.value);
+
   if (!name || !dept) {
     msgEl.textContent = '氏名・部署は必須です';
     msgEl.style.color = '#c0392b';
     return;
   }
   try {
-    await setDoc(doc(db, 'users', uid), { name, empid, dept, division, role });
+    await setDoc(doc(db, 'users', uid), { name, empid, dept, division, role, viewableDepts });
     msgEl.textContent = `✅ ${name} さんの情報を更新しました！`;
     msgEl.style.color = '#2e7d32';
     await loadUserList();
