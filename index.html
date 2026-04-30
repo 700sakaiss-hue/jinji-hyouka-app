@@ -205,8 +205,6 @@
     .stars { gap: 2px; } .star-btn { width: 28px; height: 28px; font-size: 13px; }
     .actions { flex-wrap: nowrap; gap: 8px; }
     .actions .btn { padding: 11px 12px; font-size: 13px; letter-spacing: 0.03em; flex: 1; text-align: center; }
-    #edit-viewable-depts { flex-direction: column !important; }
-    #edit-viewable-depts label { white-space: normal !important; width: 100%; box-sizing: border-box; }
     .summary-bar { gap: 18px; } .nav-bar-inner { padding: 0 20px; }
     .header-user { top: 8px; right: 12px; }
     .user-badge { display: none; }
@@ -1530,7 +1528,7 @@ function buildViewableDeptsCheckboxes(currentDept) {
   ALL_DEPTS.forEach(dept => {
     if (dept === currentDept) return; // 自分の部署は除外
     const label = document.createElement('label');
-    label.style.cssText = 'display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:3px; white-space:nowrap;';
+    label.style.cssText = 'display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:3px;';
     const cb = document.createElement('input');
     cb.type = 'checkbox';
     cb.value = dept;
