@@ -1357,7 +1357,7 @@ window.registerUser = async () => {
   }
 };
 
-async function loadUserList() {
+window.loadUserList = async function loadUserList() {
   const tbody = document.getElementById('user-list');
   tbody.innerHTML = '';
   const filterDept = document.getElementById('filter-dept')?.value || '';
