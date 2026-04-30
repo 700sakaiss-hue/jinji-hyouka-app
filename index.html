@@ -342,6 +342,7 @@
     <div class="nav-bar-inner">
       <button class="nav-tab active" onclick="showPage('eval')">📋 評価シート</button>
       <button class="nav-tab" id="admin-tab" onclick="showPage('admin')" style="display:none">⚙️ 管理</button>
+      <button class="nav-tab" id="entry-tab" onclick="showPage('entry')" style="display:none">📊 入力者確認</button>
     </div>
   </div>
 
@@ -464,32 +465,6 @@
 
   <div id="admin-screen">
     <div class="main">
-
-      <!-- 未入力者確認セクション -->
-      <div class="admin-section">
-        <div class="admin-section-title">📋 未入力者確認</div>
-        <div style="background:var(--cream); border:1.5px solid var(--border); border-radius:4px; padding:20px 24px;">
-          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
-            <select id="unentered-division" style="padding:8px 12px; border:1.5px solid var(--border); border-radius:4px; font-family:'Noto Sans JP',sans-serif; font-size:13px;" onchange="loadUnenteredList()">
-              <option value="">すべての事業部</option>
-              <option value="denki">電気通信</option>
-              <option value="somu">総務</option>
-              <option value="keibi">警備</option>
-            </select>
-            <select id="unentered-type" style="padding:8px 12px; border:1.5px solid var(--border); border-radius:4px; font-family:'Noto Sans JP',sans-serif; font-size:13px;" onchange="loadUnenteredList()">
-              <option value="general">一般社員</option>
-              <option value="manager">管理職</option>
-            </select>
-            <button class="btn btn-ghost" onclick="loadUnenteredList()" style="padding:8px 16px; font-size:12px;">🔄 更新</button>
-            <div id="unentered-badges" style="display:flex; gap:6px; flex-wrap:wrap; margin-left:auto;"></div>
-          </div>
-          <table class="user-table" id="unentered-table">
-            <thead><tr><th>社員番号</th><th>氏名</th><th>部署</th><th>役職</th><th style="text-align:center;">状態</th></tr></thead>
-            <tbody id="unentered-list"><tr><td colspan="5" style="text-align:center; padding:20px; color:var(--ink-faint);">上の条件を選んで「更新」を押してください</td></tr></tbody>
-          </table>
-          <div style="font-size:11px; color:var(--ink-faint); margin-top:8px;">※ 未入力：評価データなし　途中：スコア入力中だが登録ボタン未押し</div>
-        </div>
-      </div>
 
       <div class="admin-section" id="pdf-export-section">
         <div class="admin-section-title">📄 PDF一括出力</div>
@@ -669,6 +644,41 @@
       <button class="btn btn-primary" onclick="changePassword()">変更する</button>
     </div>
     <div id="pw-msg" style="font-size:12px; margin-top:10px; min-height:18px;"></div>
+  </div>
+</div>
+
+<!-- 入力者確認画面 -->
+<div id="entry-screen" style="display:none;">
+  <div class="main">
+    <div class="admin-section">
+      <div class="admin-section-title">📊 入力者確認</div>
+      <div style="background:var(--cream); border:1.5px solid var(--border); border-radius:4px; padding:20px 24px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+          <select id="entry-division" style="padding:8px 12px; border:1.5px solid var(--border); border-radius:4px; font-family:'Noto Sans JP',sans-serif; font-size:13px;" onchange="loadEntryList()">
+            <option value="">すべての事業部</option>
+            <option value="denki">電気通信</option>
+            <option value="somu">総務</option>
+            <option value="keibi">警備</option>
+          </select>
+          <select id="entry-type" style="padding:8px 12px; border:1.5px solid var(--border); border-radius:4px; font-family:'Noto Sans JP',sans-serif; font-size:13px;" onchange="loadEntryList()">
+            <option value="general">一般社員</option>
+            <option value="manager">管理職</option>
+          </select>
+          <select id="entry-status" style="padding:8px 12px; border:1.5px solid var(--border); border-radius:4px; font-family:'Noto Sans JP',sans-serif; font-size:13px;" onchange="loadEntryList()">
+            <option value="all">すべて表示</option>
+            <option value="unentered">未入力・途中のみ</option>
+            <option value="done">入力済みのみ</option>
+          </select>
+          <button class="btn btn-ghost" onclick="loadEntryList()" style="padding:8px 16px; font-size:12px;">🔄 更新</button>
+          <div id="entry-badges" style="display:flex; gap:6px; flex-wrap:wrap; margin-left:auto;"></div>
+        </div>
+        <table class="user-table">
+          <thead><tr><th>社員番号</th><th>氏名</th><th>部署</th><th>役職</th><th style="text-align:center;">状態</th></tr></thead>
+          <tbody id="entry-list"><tr><td colspan="5" style="text-align:center; padding:20px; color:var(--ink-faint);">条件を選んで「更新」を押してください</td></tr></tbody>
+        </table>
+        <div style="font-size:11px; color:var(--ink-faint); margin-top:8px;">※ 入力済み：全項目入力　途中：一部入力済み　未入力：データなし</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1076,6 +1086,9 @@ async function initApp() {
   if (['admin', 'staff'].includes(currentUserData.role)) {
     document.getElementById('admin-tab').style.display = 'block';
   }
+  if (currentUserData.role === 'admin') {
+    document.getElementById('entry-tab').style.display = 'block';
+  }
   if (['staff'].includes(currentUserData.role)) {
     const pdfSection = document.getElementById('pdf-export-section');
     if (pdfSection) pdfSection.style.display = 'none';
@@ -1117,10 +1130,10 @@ async function initApp() {
 window.showPage = (page) => {
   document.getElementById('eval-screen').style.display = page === 'eval' ? 'block' : 'none';
   document.getElementById('admin-screen').style.display = page === 'admin' ? 'block' : 'none';
-  document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', (i===0&&page==='eval')||(i===1&&page==='admin')));
-  // 管理画面は常に一般社員テーマ
-  if (page === 'admin') document.body.classList.remove('role-manager');
-  if (page === 'admin') loadUserList();
+  document.getElementById('entry-screen').style.display = page === 'entry' ? 'block' : 'none';
+  document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', (i===0&&page==='eval')||(i===1&&page==='admin')||(i===2&&page==='entry')));
+  if (page === 'admin') { document.body.classList.remove('role-manager'); loadUserList(); }
+  if (page === 'entry') { document.body.classList.remove('role-manager'); loadEntryList(); }
 };
 
 // メンバーデータをキャッシュ
@@ -1525,6 +1538,84 @@ window.loadUnenteredList = async () => {
     const statusBadge = u.status === 'none'
       ? '<span style="background:#fce4ec; color:#c62828; font-size:11px; padding:2px 8px; border-radius:2px;">未入力</span>'
       : `<span style="background:#fff8e1; color:#f57f17; font-size:11px; padding:2px 8px; border-radius:2px;">途中 ${u.filledCount}/${u.total}</span>`;
+    return `<tr style="${i%2===0?'':'background:#fafafa'}">
+      <td style="padding:10px 14px;">${u.empid||'—'}</td>
+      <td style="padding:10px 14px;"><strong>${u.name}</strong></td>
+      <td style="padding:10px 14px;">${u.dept||'—'}</td>
+      <td style="padding:10px 14px;">${ROLE_LABELS_SHORT[u.role]||'—'}</td>
+      <td style="padding:10px 14px; text-align:center;">${statusBadge}</td>
+    </tr>`;
+  }).join('');
+};
+
+window.loadEntryList = async () => {
+  const division = document.getElementById('entry-division').value;
+  const type = document.getElementById('entry-type').value;
+  const statusFilter = document.getElementById('entry-status').value;
+  const tbody = document.getElementById('entry-list');
+  const badges = document.getElementById('entry-badges');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--ink-faint);">読み込み中...</td></tr>';
+  badges.innerHTML = '';
+
+  const usersSnap = await getDocs(collection(db, 'users'));
+  let users = [];
+  usersSnap.forEach(d => {
+    const u = d.data();
+    const uDiv = u.division || getDivisionFromDept(u.dept || '');
+    if (division && uDiv !== division) return;
+    const isGeneral = GENERAL_ROLES.includes(u.role) || !u.role;
+    if (type === 'general' && !isGeneral) return;
+    if (type === 'manager' && isGeneral) return;
+    users.push({ id: d.id, ...u, uDiv });
+  });
+
+  users.sort((a, b) => {
+    if (!a.empid && !b.empid) return 0;
+    if (!a.empid) return 1;
+    if (!b.empid) return -1;
+    return a.empid.localeCompare(b.empid, 'ja', { numeric: true });
+  });
+
+  const results = await Promise.all(users.map(async u => {
+    const docId = `${u.id}_${u.uDiv}`;
+    const snap = await getDoc(doc(db, 'evaluations', docId));
+    if (!snap.exists()) return { ...u, status: 'none' };
+    const scores = snap.data().scores || {};
+    const cats = GENERAL_ROLES.includes(u.role) || !u.role
+      ? ['gyoseki','skill','conduct']
+      : ['gyoseki','skill','conduct','mgmt'];
+    const requiredKeys = cats.flatMap(cat => [0,1,2,3].map(i => `${cat}_${i}`));
+    const filledCount = requiredKeys.filter(k => (scores[k] || 0) > 0).length;
+    if (filledCount === 0) return { ...u, status: 'none' };
+    if (filledCount < requiredKeys.length) return { ...u, status: 'partial', filledCount, total: requiredKeys.length };
+    return { ...u, status: 'done' };
+  }));
+
+  const doneCount = results.filter(u => u.status === 'done').length;
+  const partialCount = results.filter(u => u.status === 'partial').length;
+  const noneCount = results.filter(u => u.status === 'none').length;
+
+  badges.innerHTML = `
+    <span style="background:#e8f5e9; color:#2e7d32; font-size:12px; padding:4px 12px; border-radius:3px; font-weight:700;">入力済 ${doneCount}名</span>
+    <span style="background:#fff8e1; color:#f57f17; font-size:12px; padding:4px 12px; border-radius:3px; font-weight:700;">途中 ${partialCount}名</span>
+    <span style="background:#fce4ec; color:#c62828; font-size:12px; padding:4px 12px; border-radius:3px; font-weight:700;">未入力 ${noneCount}名</span>
+  `;
+
+  let filtered = results;
+  if (statusFilter === 'unentered') filtered = results.filter(u => u.status !== 'done');
+  if (statusFilter === 'done') filtered = results.filter(u => u.status === 'done');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--ink-faint);">該当する社員がいません</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((u, i) => {
+    const statusBadge = u.status === 'done'
+      ? '<span style="background:#e8f5e9; color:#2e7d32; font-size:11px; padding:2px 8px; border-radius:2px;">入力済</span>'
+      : u.status === 'partial'
+        ? `<span style="background:#fff8e1; color:#f57f17; font-size:11px; padding:2px 8px; border-radius:2px;">途中 ${u.filledCount}/${u.total}</span>`
+        : '<span style="background:#fce4ec; color:#c62828; font-size:11px; padding:2px 8px; border-radius:2px;">未入力</span>';
     return `<tr style="${i%2===0?'':'background:#fafafa'}">
       <td style="padding:10px 14px;">${u.empid||'—'}</td>
       <td style="padding:10px 14px;"><strong>${u.name}</strong></td>
