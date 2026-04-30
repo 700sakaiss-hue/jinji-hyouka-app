@@ -715,7 +715,7 @@
     </div>
     <div class="form-field" style="margin-bottom:16px;">
       <label>追加閲覧可能部署（複数部署を閲覧する場合に設定）</label>
-      <div id="edit-viewable-depts" style="background:white; border:1.5px solid var(--border); border-radius:4px; padding:8px 10px; max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;"></div>
+      <div id="edit-viewable-depts" style="background:white; border:1.5px solid var(--border); border-radius:4px; padding:10px 12px; max-height:160px; overflow-y:auto; display:flex; flex-wrap:wrap; gap:8px;"></div>
       <div style="font-size:11px; color:var(--ink-faint); margin-top:4px;">※ 自分の部署以外に閲覧させたい部署にチェックを入れてください</div>
     </div>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
@@ -1528,7 +1528,7 @@ function buildViewableDeptsCheckboxes(currentDept) {
   ALL_DEPTS.forEach(dept => {
     if (dept === currentDept) return; // 自分の部署は除外
     const label = document.createElement('label');
-    label.style.cssText = 'display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer; padding:5px 10px; border:1px solid var(--border); border-radius:3px; width:100%; box-sizing:border-box;';
+    label.style.cssText = 'display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:3px; white-space:nowrap;';
     const cb = document.createElement('input');
     cb.type = 'checkbox';
     cb.value = dept;
