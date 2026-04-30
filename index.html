@@ -502,9 +502,9 @@
               <input type="text" id="reg-empid" placeholder="A-00001">
             </div>
             <div class="form-field">
-              <label>部署（プルダウンから選択 または 下欄に直接入力）</label>
+              <label>部署</label>
               <select id="reg-dept-select" onchange="syncDeptFromSelect('reg')">
-                <option value="">-- プルダウンから選択 --</option>
+                <option value="">-- 選択してください --</option>
                 <option value="電気通信(コムシス平林)">電気通信(コムシス平林)</option>
                 <option value="電気通信(コムシス東淀川)">電気通信(コムシス東淀川)</option>
                 <option value="電気通信(鴻池)">電気通信(鴻池)</option>
@@ -527,8 +527,9 @@
                 <option value="警備(東京営業所)">警備(東京営業所)</option>
                 <option value="警備(南大阪)">警備(南大阪)</option>
                 <option value="施設警備">施設警備</option>
+                <option value="__other__">その他（直接入力）</option>
               </select>
-              <input type="text" id="reg-dept" placeholder="上にない場合はここに直接入力" style="margin-top:6px;">
+              <input type="text" id="reg-dept" placeholder="部署名を入力" style="margin-top:6px; display:none;">
             </div>
             <div class="form-field">
               <label>事業部</label>
@@ -659,9 +660,9 @@
         <input type="text" id="edit-empid">
       </div>
       <div class="form-field">
-        <label>部署（プルダウンから選択 または 下欄に直接入力）</label>
+        <label>部署</label>
         <select id="edit-dept-select" onchange="syncDeptFromSelect('edit')">
-          <option value="">-- プルダウンから選択 --</option>
+          <option value="">-- 選択してください --</option>
           <option value="電気通信(コムシス平林)">電気通信(コムシス平林)</option>
           <option value="電気通信(コムシス東淀川)">電気通信(コムシス東淀川)</option>
           <option value="電気通信(鴻池)">電気通信(鴻池)</option>
@@ -684,8 +685,9 @@
           <option value="警備(東京営業所)">警備(東京営業所)</option>
           <option value="警備(南大阪)">警備(南大阪)</option>
           <option value="施設警備">施設警備</option>
+          <option value="__other__">その他（直接入力）</option>
         </select>
-        <input type="text" id="edit-dept" placeholder="上にない場合はここに直接入力" style="margin-top:6px;">
+        <input type="text" id="edit-dept" placeholder="部署名を入力" style="margin-top:6px; display:none;">
       </div>
       <div class="form-field">
         <label>事業部</label>
@@ -745,10 +747,19 @@ const db = getFirestore(app);
 // 部署プルダウン → テキスト入力欄に同期
 window.syncDeptFromSelect = (prefix) => {
   const val = document.getElementById(`${prefix}-dept-select`).value;
-  if (val) {
-    document.getElementById(`${prefix}-dept`).value = val;
-    const divId = prefix === 'reg' ? 'reg-division' : 'edit-division';
-    document.getElementById(divId).value = getDivisionFromDept(val);
+  const textInput = document.getElementById(`${prefix}-dept`);
+  const divId = prefix === 'reg' ? 'reg-division' : 'edit-division';
+
+  if (val === '__other__') {
+    // 「その他」選択時：テキスト欄を表示してクリア
+    textInput.style.display = 'block';
+    textInput.value = '';
+    textInput.focus();
+  } else {
+    // 通常選択時：テキスト欄を非表示にして値をセット
+    textInput.style.display = 'none';
+    textInput.value = val;
+    if (val) document.getElementById(divId).value = getDivisionFromDept(val);
   }
 };
 
@@ -1409,6 +1420,7 @@ window.registerUser = async () => {
     document.getElementById('reg-name').value = '';
     document.getElementById('reg-empid').value = '';
     document.getElementById('reg-dept').value = '';
+    document.getElementById('reg-dept').style.display = 'none';
     document.getElementById('reg-dept-select').value = '';
     document.getElementById('reg-role').value = 'general';    await loadUserList();
     if (MANAGER_ROLES.includes(currentUserData.role)) await loadMemberBar();
@@ -1470,11 +1482,19 @@ window.openEditModal = (uid, name, empid, dept, division, role) => {
   document.getElementById('edit-uid').value = uid;
   document.getElementById('edit-name').value = name;
   document.getElementById('edit-empid').value = empid;
-  document.getElementById('edit-dept').value = dept;
-  // プルダウンにも反映（一致する選択肢があれば選択状態にする）
+  // プルダウンに一致する選択肢があれば選択、なければ「その他」でテキスト欄表示
   const deptSelect = document.getElementById('edit-dept-select');
-  const matchOpt = Array.from(deptSelect.options).find(o => o.value === dept);
-  deptSelect.value = matchOpt ? dept : '';
+  const deptInput = document.getElementById('edit-dept');
+  const matchOpt = Array.from(deptSelect.options).find(o => o.value === dept && o.value !== '__other__');
+  if (matchOpt) {
+    deptSelect.value = dept;
+    deptInput.value = dept;
+    deptInput.style.display = 'none';
+  } else {
+    deptSelect.value = '__other__';
+    deptInput.value = dept;
+    deptInput.style.display = 'block';
+  }
   document.getElementById('edit-division').value = division || 'denki';
   document.getElementById('edit-role').value = role;
   document.getElementById('edit-msg').textContent = '';
