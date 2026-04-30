@@ -1493,13 +1493,22 @@ window.loadUnenteredList = async () => {
     if (!snap.exists()) return { ...u, status: 'none' };
     const data = snap.data();
     const scores = data.scores || {};
-    const hasAnyScore = Object.values(scores).some(v => v > 0);
-    return { ...u, status: hasAnyScore ? 'partial' : 'none' };
+
+    // 必要な項目数（一般社員:12項目、管理職:16項目）
+    const cats = GENERAL_ROLES.includes(u.role) || !u.role
+      ? ['gyoseki','skill','conduct']
+      : ['gyoseki','skill','conduct','mgmt'];
+    const requiredKeys = cats.flatMap(cat => [0,1,2,3].map(i => `${cat}_${i}`));
+    const filledCount = requiredKeys.filter(k => (scores[k] || 0) > 0).length;
+
+    if (filledCount === 0) return { ...u, status: 'none' };
+    if (filledCount < requiredKeys.length) return { ...u, status: 'partial', filledCount, total: requiredKeys.length };
+    return { ...u, status: 'done' };
   }));
 
   // 未入力・途中のみ表示
   const unentered = results.filter(u => u.status === 'none' || u.status === 'partial');
-  const enteredCount = results.length - unentered.length;
+  const enteredCount = results.filter(u => u.status === 'done').length;
 
   // バッジ表示
   badges.innerHTML = `
@@ -1515,7 +1524,7 @@ window.loadUnenteredList = async () => {
   tbody.innerHTML = unentered.map((u, i) => {
     const statusBadge = u.status === 'none'
       ? '<span style="background:#fce4ec; color:#c62828; font-size:11px; padding:2px 8px; border-radius:2px;">未入力</span>'
-      : '<span style="background:#fff8e1; color:#f57f17; font-size:11px; padding:2px 8px; border-radius:2px;">途中</span>';
+      : `<span style="background:#fff8e1; color:#f57f17; font-size:11px; padding:2px 8px; border-radius:2px;">途中 ${u.filledCount}/${u.total}</span>`;
     return `<tr style="${i%2===0?'':'background:#fafafa'}">
       <td style="padding:10px 14px;">${u.empid||'—'}</td>
       <td style="padding:10px 14px;"><strong>${u.name}</strong></td>
