@@ -464,6 +464,33 @@
 
   <div id="admin-screen">
     <div class="main">
+
+      <!-- 未入力者確認セクション -->
+      <div class="admin-section">
+        <div class="admin-section-title">📋 未入力者確認</div>
+        <div style="background:var(--cream); border:1.5px solid var(--border); border-radius:4px; padding:20px 24px;">
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+            <select id="unentered-division" style="padding:8px 12px; border:1.5px solid var(--border); border-radius:4px; font-family:'Noto Sans JP',sans-serif; font-size:13px;" onchange="loadUnenteredList()">
+              <option value="">すべての事業部</option>
+              <option value="denki">電気通信</option>
+              <option value="somu">総務</option>
+              <option value="keibi">警備</option>
+            </select>
+            <select id="unentered-type" style="padding:8px 12px; border:1.5px solid var(--border); border-radius:4px; font-family:'Noto Sans JP',sans-serif; font-size:13px;" onchange="loadUnenteredList()">
+              <option value="general">一般社員</option>
+              <option value="manager">管理職</option>
+            </select>
+            <button class="btn btn-ghost" onclick="loadUnenteredList()" style="padding:8px 16px; font-size:12px;">🔄 更新</button>
+            <div id="unentered-badges" style="display:flex; gap:6px; flex-wrap:wrap; margin-left:auto;"></div>
+          </div>
+          <table class="user-table" id="unentered-table">
+            <thead><tr><th>社員番号</th><th>氏名</th><th>部署</th><th>役職</th><th style="text-align:center;">状態</th></tr></thead>
+            <tbody id="unentered-list"><tr><td colspan="5" style="text-align:center; padding:20px; color:var(--ink-faint);">上の条件を選んで「更新」を押してください</td></tr></tbody>
+          </table>
+          <div style="font-size:11px; color:var(--ink-faint); margin-top:8px;">※ 未入力：評価データなし　途中：スコア入力中だが登録ボタン未押し</div>
+        </div>
+      </div>
+
       <div class="admin-section" id="pdf-export-section">
         <div class="admin-section-title">📄 PDF一括出力</div>
         <div style="background:var(--cream); border:1.5px solid var(--border); border-radius:4px; padding:20px 24px;">
@@ -1428,6 +1455,75 @@ window.registerUser = async () => {
     msgEl.textContent = '登録に失敗しました: ' + e.message;
     msgEl.className = 'form-msg error';
   }
+};
+
+window.loadUnenteredList = async () => {
+  const division = document.getElementById('unentered-division').value;
+  const type = document.getElementById('unentered-type').value;
+  const tbody = document.getElementById('unentered-list');
+  const badges = document.getElementById('unentered-badges');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--ink-faint);">読み込み中...</td></tr>';
+  badges.innerHTML = '';
+
+  // ユーザー一覧取得
+  const usersSnap = await getDocs(collection(db, 'users'));
+  let users = [];
+  usersSnap.forEach(d => {
+    const u = d.data();
+    const uDiv = u.division || getDivisionFromDept(u.dept || '');
+    if (division && uDiv !== division) return;
+    const isGeneral = GENERAL_ROLES.includes(u.role) || !u.role;
+    if (type === 'general' && !isGeneral) return;
+    if (type === 'manager' && isGeneral) return;
+    users.push({ id: d.id, ...u, uDiv });
+  });
+
+  // 社員番号順ソート
+  users.sort((a, b) => {
+    if (!a.empid && !b.empid) return 0;
+    if (!a.empid) return 1;
+    if (!b.empid) return -1;
+    return a.empid.localeCompare(b.empid, 'ja', { numeric: true });
+  });
+
+  // 各ユーザーの評価データを確認
+  const results = await Promise.all(users.map(async u => {
+    const docId = `${u.id}_${u.uDiv}`;
+    const snap = await getDoc(doc(db, 'evaluations', docId));
+    if (!snap.exists()) return { ...u, status: 'none' };
+    const data = snap.data();
+    const scores = data.scores || {};
+    const hasAnyScore = Object.values(scores).some(v => v > 0);
+    return { ...u, status: hasAnyScore ? 'partial' : 'none' };
+  }));
+
+  // 未入力・途中のみ表示
+  const unentered = results.filter(u => u.status === 'none' || u.status === 'partial');
+  const enteredCount = results.length - unentered.length;
+
+  // バッジ表示
+  badges.innerHTML = `
+    <span style="background:#fce4ec; color:#c62828; font-size:12px; padding:4px 12px; border-radius:3px; font-weight:700;">未入力・途中 ${unentered.length}名</span>
+    <span style="background:#e8f5e9; color:#2e7d32; font-size:12px; padding:4px 12px; border-radius:3px; font-weight:700;">入力済 ${enteredCount}名</span>
+  `;
+
+  if (unentered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#2e7d32; font-weight:700;">✅ 全員入力済みです！</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = unentered.map((u, i) => {
+    const statusBadge = u.status === 'none'
+      ? '<span style="background:#fce4ec; color:#c62828; font-size:11px; padding:2px 8px; border-radius:2px;">未入力</span>'
+      : '<span style="background:#fff8e1; color:#f57f17; font-size:11px; padding:2px 8px; border-radius:2px;">途中</span>';
+    return `<tr style="${i%2===0?'':'background:#fafafa'}">
+      <td style="padding:10px 14px;">${u.empid||'—'}</td>
+      <td style="padding:10px 14px;"><strong>${u.name}</strong></td>
+      <td style="padding:10px 14px;">${u.dept||'—'}</td>
+      <td style="padding:10px 14px;">${ROLE_LABELS_SHORT[u.role]||'—'}</td>
+      <td style="padding:10px 14px; text-align:center;">${statusBadge}</td>
+    </tr>`;
+  }).join('');
 };
 
 window.loadUserList = async function loadUserList() {
