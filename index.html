@@ -502,8 +502,33 @@
               <input type="text" id="reg-empid" placeholder="A-00001">
             </div>
             <div class="form-field">
-              <label>部署（候補から選ぶか直接入力）</label>
-              <input type="text" id="reg-dept" placeholder="電気通信(本社)" list="dept-list">
+              <label>部署（プルダウンから選択 または 下欄に直接入力）</label>
+              <select id="reg-dept-select" onchange="syncDeptFromSelect('reg')">
+                <option value="">-- プルダウンから選択 --</option>
+                <option value="電気通信(コムシス平林)">電気通信(コムシス平林)</option>
+                <option value="電気通信(コムシス東淀川)">電気通信(コムシス東淀川)</option>
+                <option value="電気通信(鴻池)">電気通信(鴻池)</option>
+                <option value="電気通信(鳥飼)">電気通信(鳥飼)</option>
+                <option value="電気通信(横浜)">電気通信(横浜)</option>
+                <option value="電気通信(泉北)">電気通信(泉北)</option>
+                <option value="電気通信(ラピス神戸)">電気通信(ラピス神戸)</option>
+                <option value="電気通信(東京)">電気通信(東京)</option>
+                <option value="電気通信(滋賀)">電気通信(滋賀)</option>
+                <option value="電気通信(松原施工)">電気通信(松原施工)</option>
+                <option value="電気通信(本社)">電気通信(本社)</option>
+                <option value="電気通信(本社工事部)">電気通信(本社工事部)</option>
+                <option value="電気通信(淀屋橋)">電気通信(淀屋橋)</option>
+                <option value="電気通信(コムシス施工)">電気通信(コムシス施工)</option>
+                <option value="電気通信(河内)">電気通信(河内)</option>
+                <option value="電気通信(大阪技術)">電気通信(大阪技術)</option>
+                <option value="電気通信(松原)">電気通信(松原)</option>
+                <option value="総務">総務</option>
+                <option value="警備(本社)">警備(本社)</option>
+                <option value="警備(東京営業所)">警備(東京営業所)</option>
+                <option value="警備(南大阪)">警備(南大阪)</option>
+                <option value="施設警備">施設警備</option>
+              </select>
+              <input type="text" id="reg-dept" placeholder="上にない場合はここに直接入力" style="margin-top:6px;">
             </div>
             <div class="form-field">
               <label>事業部</label>
@@ -634,8 +659,33 @@
         <input type="text" id="edit-empid">
       </div>
       <div class="form-field">
-        <label>部署</label>
-        <input type="text" id="edit-dept" list="dept-list">
+        <label>部署（プルダウンから選択 または 下欄に直接入力）</label>
+        <select id="edit-dept-select" onchange="syncDeptFromSelect('edit')">
+          <option value="">-- プルダウンから選択 --</option>
+          <option value="電気通信(コムシス平林)">電気通信(コムシス平林)</option>
+          <option value="電気通信(コムシス東淀川)">電気通信(コムシス東淀川)</option>
+          <option value="電気通信(鴻池)">電気通信(鴻池)</option>
+          <option value="電気通信(鳥飼)">電気通信(鳥飼)</option>
+          <option value="電気通信(横浜)">電気通信(横浜)</option>
+          <option value="電気通信(泉北)">電気通信(泉北)</option>
+          <option value="電気通信(ラピス神戸)">電気通信(ラピス神戸)</option>
+          <option value="電気通信(東京)">電気通信(東京)</option>
+          <option value="電気通信(滋賀)">電気通信(滋賀)</option>
+          <option value="電気通信(松原施工)">電気通信(松原施工)</option>
+          <option value="電気通信(本社)">電気通信(本社)</option>
+          <option value="電気通信(本社工事部)">電気通信(本社工事部)</option>
+          <option value="電気通信(淀屋橋)">電気通信(淀屋橋)</option>
+          <option value="電気通信(コムシス施工)">電気通信(コムシス施工)</option>
+          <option value="電気通信(河内)">電気通信(河内)</option>
+          <option value="電気通信(大阪技術)">電気通信(大阪技術)</option>
+          <option value="電気通信(松原)">電気通信(松原)</option>
+          <option value="総務">総務</option>
+          <option value="警備(本社)">警備(本社)</option>
+          <option value="警備(東京営業所)">警備(東京営業所)</option>
+          <option value="警備(南大阪)">警備(南大阪)</option>
+          <option value="施設警備">施設警備</option>
+        </select>
+        <input type="text" id="edit-dept" placeholder="上にない場合はここに直接入力" style="margin-top:6px;">
       </div>
       <div class="form-field">
         <label>事業部</label>
@@ -691,6 +741,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// 部署プルダウン → テキスト入力欄に同期
+window.syncDeptFromSelect = (prefix) => {
+  const val = document.getElementById(`${prefix}-dept-select`).value;
+  if (val) {
+    document.getElementById(`${prefix}-dept`).value = val;
+    const divId = prefix === 'reg' ? 'reg-division' : 'edit-division';
+    document.getElementById(divId).value = getDivisionFromDept(val);
+  }
+};
 
 // 部署から事業部を自動判定
 function getDivisionFromDept(dept) {
@@ -1349,6 +1409,7 @@ window.registerUser = async () => {
     document.getElementById('reg-name').value = '';
     document.getElementById('reg-empid').value = '';
     document.getElementById('reg-dept').value = '';
+    document.getElementById('reg-dept-select').value = '';
     document.getElementById('reg-role').value = 'general';    await loadUserList();
     if (MANAGER_ROLES.includes(currentUserData.role)) await loadMemberBar();
   } catch(e) {
@@ -1410,6 +1471,10 @@ window.openEditModal = (uid, name, empid, dept, division, role) => {
   document.getElementById('edit-name').value = name;
   document.getElementById('edit-empid').value = empid;
   document.getElementById('edit-dept').value = dept;
+  // プルダウンにも反映（一致する選択肢があれば選択状態にする）
+  const deptSelect = document.getElementById('edit-dept-select');
+  const matchOpt = Array.from(deptSelect.options).find(o => o.value === dept);
+  deptSelect.value = matchOpt ? dept : '';
   document.getElementById('edit-division').value = division || 'denki';
   document.getElementById('edit-role').value = role;
   document.getElementById('edit-msg').textContent = '';
