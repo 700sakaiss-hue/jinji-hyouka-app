@@ -1528,7 +1528,7 @@ function buildViewableDeptsCheckboxes(currentDept) {
   ALL_DEPTS.forEach(dept => {
     if (dept === currentDept) return; // 自分の部署は除外
     const label = document.createElement('label');
-    label.style.cssText = 'display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:3px;';
+    label.style.cssText = 'display:inline-flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; padding:3px 8px; border:1px solid var(--border); border-radius:3px; white-space:nowrap; flex-shrink:0;';
     const cb = document.createElement('input');
     cb.type = 'checkbox';
     cb.value = dept;
