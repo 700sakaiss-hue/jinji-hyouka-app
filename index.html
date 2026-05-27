@@ -140,7 +140,7 @@
   /* ── COMMENT ── */
   .comment-box { background: var(--theme-accent-light); border: 1.5px solid var(--theme-border); border-radius: 4px; padding: 14px 18px; margin-top: 10px; transition: all 0.3s; }
   .comment-label { font-size: 11px; color: var(--theme-label); letter-spacing: 0.15em; margin-bottom: 8px; font-weight: 700; transition: color 0.3s; }
-  textarea { width: 100%; min-height: 70px; border: none; background: none; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; color: var(--ink); outline: none; resize: vertical; line-height: 1.7; }
+  textarea { width: 100%; min-height: 70px; border: none; background: none; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; color: var(--ink); outline: none; resize: vertical; line-height: 1.7; overflow-y: hidden; }
   textarea::placeholder { color: #bbb; }
 
   /* ── SUMMARY ── */
@@ -1309,6 +1309,8 @@ async function loadData(uid) {
     const badge = document.getElementById(`badge-${key}`);
     if (badge) badge.textContent = v;
   });
+  // textarea高さを自動調整
+  setTimeout(applyAutoResize, 50);
 }
 
 window.saveData = async () => {
@@ -1783,6 +1785,19 @@ window.clearFilters = () => {
 };
 
 document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') window.doLogin(); });
+
+// textarea自動高さ調整
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+document.addEventListener('input', e => {
+  if (e.target.tagName === 'TEXTAREA') autoResize(e.target);
+});
+// 既存データ読み込み時にも適用
+function applyAutoResize() {
+  document.querySelectorAll('textarea').forEach(el => autoResize(el));
+}
 
 // 社員番号自動検索（ページ読み込み時に必ず登録）
 document.getElementById('info-empid').addEventListener('input', () => {
